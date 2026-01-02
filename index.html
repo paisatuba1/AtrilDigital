@@ -44,6 +44,10 @@
                 <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-extrabold shadow-lg transition-all text-xs tracking-widest uppercase mt-4">INGRESAR</button>
             </div>
             <p id="login-error" class="text-red-500 text-[10px] mt-6 hidden font-bold uppercase">DATOS INCORRECTOS</p>
+            <div id="inactive-error" class="hidden mt-6 p-4 bg-orange-50 rounded-2xl border border-orange-100">
+                <p class="text-orange-600 text-[10px] font-black uppercase leading-tight">USUARIO INACTIVO</p>
+                <p class="text-orange-400 text-[8px] font-bold uppercase mt-1">CONTACTE AL ADMINISTRADOR PARA ACTIVAR SU CUENTA</p>
+            </div>
         </div>
     </div>
 
@@ -98,7 +102,7 @@
             <button onclick="nav('screen-activity')" class="btn-atras">← ATRÁS</button>
         </div>
         <div class="w-full text-center space-y-4">
-            <h2 class="text-lg font-extrabold mb-8 text-slate-800 uppercase tracking-widest">SELECCIONE NIVEL</h2>
+            <h2 class="text-lg font-extrabold mb-8 text-slate-800 uppercase tracking-widest">SELECCIONE PROCESO</h2>
             <button onclick="initAttendance('PREBANDA')" class="w-full p-6 bg-white rounded-3xl shadow-sm font-extrabold text-left border-l-8 border-green-400 uppercase text-xs">PREBANDA</button>
             <button onclick="initAttendance('BANDA INFANTIL')" class="w-full p-6 bg-white rounded-3xl shadow-sm font-extrabold text-left border-l-8 border-blue-400 uppercase text-xs">BANDA INFANTIL</button>
             <button onclick="initAttendance('BANDA TITULAR')" class="w-full p-6 bg-white rounded-3xl shadow-sm font-extrabold text-left border-l-8 border-slate-700 uppercase text-xs">BANDA TITULAR</button>
@@ -166,19 +170,31 @@
             const u = document.getElementById('user-input').value.trim();
             const p = document.getElementById('pass-input').value.trim();
             if(!u || !p) return;
+            
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('inactive-error').classList.add('hidden');
             toggleLoader(true);
+
             try {
                 const resp = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const data = await resp.json();
+                
                 if(data.success) {
-                    session.user = u;
-                    session.banda = data.data.banda;
-                    session.sheetId = data.data.sheetId;
-                    localStorage.setItem('atril_digital_v5', JSON.stringify(session));
-                    updateUIBandName();
-                    nav('screen-menu');
-                    await fetchIntegrantes();
-                } else { document.getElementById('login-error').classList.remove('hidden'); }
+                    // Verificación de Estatus (Asegúrate que tu script de Google devuelva 'estatus')
+                    if(data.data.estatus && data.data.estatus.toUpperCase() !== 'ACTIVO') {
+                        document.getElementById('inactive-error').classList.remove('hidden');
+                    } else {
+                        session.user = u;
+                        session.banda = data.data.banda;
+                        session.sheetId = data.data.sheetId;
+                        localStorage.setItem('atril_digital_v5', JSON.stringify(session));
+                        updateUIBandName();
+                        nav('screen-menu');
+                        await fetchIntegrantes();
+                    }
+                } else { 
+                    document.getElementById('login-error').classList.remove('hidden'); 
+                }
             } catch (e) { alert("ERROR DE CONEXIÓN"); }
             toggleLoader(false);
         }
@@ -320,7 +336,7 @@
             const ret = session.masterList.filter(m => m.p.trim().toUpperCase() === session.process.toUpperCase() && record[m.n] === 'RETARDO');
             if(abs.length === 0 && ret.length === 0) return alert("SIN NOVEDADES PARA REPORTAR");
             let bandName = `BANDA SINFÓNICA ${document.getElementById('display-band-name').innerText}`;
-            let txt = `📢 *REPORTE DE ASISTENCIA*\n🏛️ *${bandName}*\n📅 *FECHA:* ${session.date}\n👥 *GRUPO:* ${session.process}\n`;
+            let txt = `📢 *REPORTE DE ASISTENCIA*\n🏛️ *${bandName}*\n📅 *FECHA:* ${session.date}\n👥 *PROCESO:* ${session.process}\n`;
             if(abs.length > 0) { txt += `\n❌ *AUSENCIAS:*\n`; abs.forEach(m => txt += `• ${m.n} (${m.i})\n`); }
             if(ret.length > 0) { txt += `\n⏳ *RETARDOS:*\n`; ret.forEach(m => txt += `• ${m.n} (${m.i})\n`); }
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
