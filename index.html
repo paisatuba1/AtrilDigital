@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinfónica App - Gestión Maestro</title>
+    <title>Sinfónica App - v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
@@ -11,25 +11,27 @@
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .active-tab { border-bottom: 4px solid #1e40af; color: #1e40af; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .animate-fade { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
     <div id="loader" class="hidden fixed inset-0 bg-white/90 z-50 flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-        <p class="text-blue-900 font-bold animate-pulse italic text-center px-4">Sincronizando con el CEREBRO...</p>
+        <p class="text-blue-900 font-bold animate-pulse italic">Sincronizando con el CEREBRO...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-[40px] shadow-2xl w-full max-w-sm border-t-8 border-blue-900 text-center">
-            <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase tracking-tighter">Sinfónica</h1>
-            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold italic">Control Maestro</p>
+            <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase">Sinfónica</h1>
+            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold">Control Maestro</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="Usuario" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center font-bold">
                 <input type="password" id="pass-input" placeholder="Contraseña" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center text-2xl tracking-widest">
                 <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black hover:bg-blue-800 transition-all shadow-lg active:scale-95">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-500 text-[10px] mt-6 hidden font-bold bg-red-50 p-3 rounded-xl italic">Usuario o clave incorrectos</p>
+            <p id="login-error" class="text-red-500 text-[10px] mt-6 hidden font-bold italic">Usuario o clave incorrectos</p>
         </div>
     </div>
 
@@ -37,29 +39,29 @@
         <div class="flex justify-between items-center mb-10 mt-4">
             <div>
                 <p class="text-[10px] font-black text-blue-500 uppercase italic">Director Activo</p>
-                <h2 id="display-band-name" class="text-xl font-black text-slate-800 leading-tight uppercase italic">Cargando...</h2>
+                <h2 id="display-band-name" class="text-xl font-black text-slate-800 uppercase italic">Cargando...</h2>
             </div>
             <button onclick="location.reload()" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Salir</button>
         </div>
-        <button onclick="nav('screen-activity')" class="w-full bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-blue-600 flex justify-between items-center group active:scale-95 transition-all">
+        <button onclick="nav('screen-activity')" class="w-full bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-blue-600 flex justify-between items-center active:scale-95 transition-all">
             <div class="text-left">
                 <p class="font-black text-slate-800 text-lg italic uppercase">Asistencia</p>
-                <p class="text-[10px] text-slate-400 font-bold uppercase">Nuevo Registro</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Pasar lista hoy</p>
             </div>
-            <span class="text-3xl group-hover:rotate-12 transition-transform">📋</span>
+            <span class="text-3xl">📋</span>
         </button>
     </div>
 
     <div id="screen-activity" class="hidden p-6 max-w-md mx-auto">
-        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase tracking-widest flex items-center">← VOLVER</button>
+        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase flex items-center">← VOLVER</button>
         <div class="space-y-6 bg-white p-8 rounded-[35px] shadow-xl border border-slate-50">
-            <h2 class="text-2xl font-black italic text-slate-800">Detalles de hoy</h2>
+            <h2 class="text-2xl font-black italic text-slate-800">Detalles del día</h2>
             <div>
-                <label class="block text-[10px] font-black text-blue-500 mb-2">FECHA</label>
+                <label class="block text-[10px] font-black text-blue-500 mb-2 uppercase">Fecha de Registro</label>
                 <input type="date" id="event-date" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500">
             </div>
             <div>
-                <label class="block text-[10px] font-black text-blue-500 mb-2">TIPO</label>
+                <label class="block text-[10px] font-black text-blue-500 mb-2 uppercase">Actividad</label>
                 <select id="event-type" onchange="toggleEventDesc()" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500">
                     <option value="Ensayo">ENSAYO REGULAR</option>
                     <option value="Evento">EVENTO ESPECIAL</option>
@@ -67,21 +69,21 @@
             </div>
             <div id="event-desc-box" class="hidden">
                 <label class="block text-[10px] font-black text-orange-500 mb-2 uppercase">Nombre del Evento</label>
-                <input type="text" id="event-desc" placeholder="Ej: Retreta Central" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic">
+                <input type="text" id="event-desc" placeholder="Ej: Concierto Central" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic">
             </div>
             <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">Siguiente</button>
         </div>
     </div>
 
     <div id="screen-process" class="hidden p-6 max-w-md mx-auto space-y-4 text-center">
-        <button onclick="nav('screen-activity')" class="text-blue-600 font-black mb-4 text-xs uppercase tracking-widest flex items-center">← REGRESAR</button>
+        <button onclick="nav('screen-activity')" class="text-blue-600 font-black mb-4 text-xs uppercase flex items-center">← REGRESAR</button>
         <h2 class="text-xl font-black italic mb-8 text-slate-800 uppercase tracking-tighter">Seleccione Nivel</h2>
-        <button onclick="initAttendance('PREBANDA')" class="w-full p-8 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-green-400 active:scale-95 transition-all uppercase italic">Prebanda</button>
-        <button onclick="initAttendance('BANDA INFANTIL')" class="w-full p-8 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-blue-400 active:scale-95 transition-all uppercase italic text-blue-900">Banda Infantil</button>
-        <button onclick="initAttendance('BANDA TITULAR')" class="w-full p-8 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-slate-800 active:scale-95 transition-all uppercase italic">Banda Titular</button>
+        <button onclick="initAttendance('PREBANDA')" class="w-full p-7 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-green-400 active:scale-95 transition-all uppercase italic">Prebanda</button>
+        <button onclick="initAttendance('BANDA INFANTIL')" class="w-full p-7 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-blue-400 active:scale-95 transition-all uppercase italic text-blue-900">Banda Infantil</button>
+        <button onclick="initAttendance('BANDA TITULAR')" class="w-full p-7 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-slate-800 active:scale-95 transition-all uppercase italic">Banda Titular</button>
     </div>
 
-    <div id="screen-list" class="hidden min-h-screen pb-44">
+    <div id="screen-list" class="hidden min-h-screen pb-44 animate-fade">
         <div class="bg-white p-5 sticky top-0 z-20 shadow-sm border-b">
             <div class="flex justify-between items-center mb-4">
                 <button onclick="nav('screen-process')" class="text-blue-600 font-black text-[10px] uppercase italic">← OTRO NIVEL</button>
@@ -90,11 +92,12 @@
             <p id="info-header" class="font-black text-xs text-slate-400 italic uppercase mb-3"></p>
             <input type="text" id="search" onkeyup="filterList()" placeholder="Buscar integrante..." class="w-full p-4 bg-slate-100 rounded-2xl outline-none font-bold text-sm mb-4">
             
-            <div class="flex gap-6 overflow-x-auto no-scrollbar text-[10px] font-black uppercase tracking-tighter border-t pt-3">
-                <button onclick="renderSection('MADERAS')" class="tab-btn active-tab pb-2">MADERAS</button>
-                <button onclick="renderSection('BRONCES')" class="tab-btn text-slate-300 pb-2">BRONCES</button>
-                <button onclick="renderSection('CUERDAS')" class="tab-btn text-slate-300 pb-2">CUERDAS</button>
-                <button onclick="renderSection('PERCUSION')" class="tab-btn text-slate-300 pb-2">PERCUSIÓN</button>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar text-[10px] font-black uppercase tracking-tighter border-t pt-3">
+                <button onclick="renderSection('TODOS')" class="tab-btn active-tab pb-2 px-2">TODOS</button>
+                <button onclick="renderSection('MADERAS')" class="tab-btn text-slate-300 pb-2 px-2">MADERAS</button>
+                <button onclick="renderSection('BRONCES')" class="tab-btn text-slate-300 pb-2 px-2">BRONCES</button>
+                <button onclick="renderSection('CUERDAS')" class="tab-btn text-slate-300 pb-2 px-2">CUERDAS</button>
+                <button onclick="renderSection('PERCUSION')" class="tab-btn text-slate-300 pb-2 px-2">PERCUSIÓN</button>
             </div>
         </div>
 
@@ -102,56 +105,46 @@
 
         <div class="fixed bottom-0 bg-white/95 backdrop-blur-sm w-full p-6 border-t shadow-2xl flex gap-3">
             <button onclick="finalize()" class="flex-[2] bg-blue-900 text-white p-5 rounded-2xl font-black shadow-xl active:scale-95 transition-all uppercase italic tracking-widest text-sm">Guardar Drive</button>
-            <button onclick="whatsappReport()" class="flex-1 bg-emerald-500 text-white p-5 rounded-2xl font-black active:scale-95 transition-all text-center text-sm shadow-lg shadow-emerald-100">WA</button>
+            <button onclick="whatsappReport()" class="flex-1 bg-emerald-500 text-white p-5 rounded-2xl font-black active:scale-95 transition-all text-center text-sm shadow-lg shadow-emerald-100 italic font-black">WA</button>
         </div>
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwYWxWZpPkEw5kokHw8kvt8ouUlDeoqYgg1O5ydD8glTzDdcG_5hj3wl-gCbN_f2hHASg/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwHEJo6erWKD2e-iUJKTotxWgzH1RX_zsNaJVLnw1z177LMnNFHBppr-HEgLK3QdDaYRQ/exec";
         
         let session = { user: "", banda: "", sheetId: "", date: "", type: "", act: "", process: "", masterList: [] };
         let record = {};
-        let currentFamily = "MADERAS";
+        let currentFamily = "TODOS";
 
-        // --- LOGIN ---
         async function loginProcess() {
             const u = document.getElementById('user-input').value.trim();
             const p = document.getElementById('pass-input').value.trim();
             if(!u || !p) return;
-
             toggleLoader(true);
             try {
-                const url = `${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
-                const resp = await fetch(url);
+                const resp = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const data = await resp.json();
-
                 if(data.success) {
                     session.user = u;
-                    session.banda = data.banda;
-                    session.sheetId = data.sheetId;
+                    session.banda = data.data.banda;
+                    session.sheetId = data.data.sheetId;
                     document.getElementById('display-band-name').innerText = session.banda;
                     nav('screen-menu');
                     await fetchIntegrantes();
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
                 }
-            } catch (e) { alert("Error de conexión con el Servidor Maestro"); }
+            } catch (e) { alert("Error de conexión"); }
             toggleLoader(false);
         }
 
-        // --- CARGA DE DATOS ---
         async function fetchIntegrantes() {
             try {
-                const getUrl = `${MOTOR_URL}?action=getIntegrantes&sheetId=${encodeURIComponent(session.sheetId)}`;
-                const response = await fetch(getUrl);
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    session.masterList = data;
-                }
+                const resp = await fetch(`${MOTOR_URL}?action=getIntegrantes&sheetId=${encodeURIComponent(session.sheetId)}`);
+                session.masterList = await resp.json();
             } catch (e) { console.error("Error cargando integrantes"); }
         }
 
-        // --- NAVEGACIÓN ---
         function nav(id) {
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
@@ -174,7 +167,6 @@
             nav('screen-list');
         }
 
-        // --- LÓGICA DE LISTA ---
         function renderSection(fam) {
             currentFamily = fam;
             document.querySelectorAll('.tab-btn').forEach(b => {
@@ -187,11 +179,11 @@
             
             const filtered = session.masterList.filter(m => 
                 m.p.trim().toUpperCase() === session.process.toUpperCase() && 
-                m.f.trim().toUpperCase() === fam.toUpperCase()
+                (fam === 'TODOS' || m.f.trim().toUpperCase() === fam.toUpperCase())
             );
 
             if(filtered.length === 0) {
-                box.innerHTML = `<div class='text-center py-20 opacity-20 font-black italic'>NO HAY REGISTROS EN ESTA SECCIÓN</div>`;
+                box.innerHTML = `<div class='text-center py-20 opacity-20 font-black italic'>SIN REGISTROS</div>`;
                 return;
             }
 
@@ -204,9 +196,9 @@
                         <p class="font-black text-slate-800 italic text-sm">${m.n}</p>
                         <p class="text-[9px] text-blue-500 font-bold uppercase">${m.i}</p>
                     </div>
-                    <div class="grid grid-cols-4 gap-2">
-                        ${['P','A','R','E'].map(s => `
-                            <button onclick="mark('${m.n}','${s}', this)" class="p-3 rounded-xl border-2 font-black text-xs transition-all 
+                    <div class="grid grid-cols-4 gap-1">
+                        ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(s => `
+                            <button onclick="mark('${m.n}','${s}', this)" class="p-2 py-3 rounded-xl border font-black text-[8px] transition-all 
                             ${sel === s ? getCol(s) : 'bg-slate-50 text-slate-300 border-slate-50'}">${s}</button>
                         `).join('')}
                     </div>`;
@@ -215,15 +207,15 @@
         }
 
         function getCol(s) {
-            const styles = { P: 'bg-green-500 border-green-500', A: 'bg-red-500 border-red-500', R: 'bg-orange-500 border-orange-500', E: 'bg-blue-600 border-blue-600' };
-            return `${styles[s]} text-white shadow-md scale-105`;
+            const cols = { PRESENTE: 'bg-green-500 border-green-500', AUSENTE: 'bg-red-500 border-red-500', RETARDO: 'bg-orange-500 border-orange-500', EXCUSA: 'bg-blue-600 border-blue-600' };
+            return `${cols[s]} text-white shadow-md scale-105 z-10`;
         }
 
         function mark(nom, est, btn) {
             record[nom] = est;
             document.getElementById('counter').innerText = `${Object.keys(record).length} REGISTROS`;
-            btn.parentElement.querySelectorAll('button').forEach(b => b.className = "p-3 rounded-xl border-2 font-black text-xs transition-all bg-slate-50 text-slate-300 border-slate-50");
-            btn.className = `p-3 rounded-xl border-2 font-black text-xs transition-all ${getCol(est)}`;
+            btn.parentElement.querySelectorAll('button').forEach(b => b.className = "p-2 py-3 rounded-xl border font-black text-[8px] transition-all bg-slate-50 text-slate-300 border-slate-50");
+            btn.className = `p-2 py-3 rounded-xl border font-black text-[8px] transition-all ${getCol(est)}`;
         }
 
         function filterList() {
@@ -231,32 +223,28 @@
             document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
         }
 
-        // --- FINALIZAR ---
         async function finalize() {
             const total = Object.keys(record).length;
             if(total === 0) return alert("Marque al menos un integrante.");
-            if(!confirm(`¿Sincronizar ${total} registros al Drive?`)) return;
-
             toggleLoader(true);
             const rows = Object.entries(record).map(([nom, est]) => [session.date, session.type, session.act, session.process, nom, est, session.user]);
-
             try {
                 const res = await fetch(MOTOR_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: rows })
                 });
-                alert("✅ SINCRONIZADO CON ÉXITO");
+                alert("✅ SINCRONIZADO CORRECTAMENTE");
                 record = {};
                 document.getElementById('counter').innerText = "0 REGISTROS";
                 nav('screen-process');
-            } catch (e) { alert("Error al guardar en la nube"); }
+            } catch (e) { alert("Error al guardar"); }
             toggleLoader(false);
         }
 
         function whatsappReport() {
-            const abs = session.masterList.filter(m => m.p.trim().toUpperCase() === session.process.toUpperCase() && record[m.n] === 'A').map(m => m.n);
-            if(abs.length === 0) return alert("No hay ausencias para reportar.");
+            const abs = session.masterList.filter(m => m.p.trim().toUpperCase() === session.process.toUpperCase() && record[m.n] === 'AUSENTE').map(m => m.n);
+            if(abs.length === 0) return alert("Sin ausencias.");
             let txt = `📢 *REPORTE - ${session.banda}*\n📅 *Fecha:* ${session.date}\n👥 *Grupo:* ${session.process}\n\n*AUSENCIAS:* \n`;
             abs.forEach(n => txt += `• ${n}\n`);
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
