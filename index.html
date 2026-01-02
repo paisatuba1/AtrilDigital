@@ -39,15 +39,15 @@
             <h1 class="text-2xl font-black text-slate-800 mb-1 uppercase tracking-tight">ATRIL DIGITAL</h1>
             <p class="text-slate-400 text-[9px] mb-10 uppercase tracking-[0.3em] font-bold">GESTIÓN PROFESIONAL</p>
             <div class="space-y-4">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold text-sm">
-                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-blue-500 text-center text-2xl tracking-widest">
-                <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-extrabold shadow-lg transition-all text-xs tracking-widest uppercase">INGRESAR</button>
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-blue-500 font-bold text-sm text-center uppercase tracking-widest">
+                <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-blue-500 text-center text-2xl tracking-widest font-bold">
+                <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-extrabold shadow-lg transition-all text-xs tracking-widest uppercase mt-4">INGRESAR</button>
             </div>
             <p id="login-error" class="text-red-500 text-[10px] mt-6 hidden font-bold uppercase">DATOS INCORRECTOS</p>
         </div>
     </div>
 
-    <div id="screen-menu" class="hidden p-6 max-w-md mx-auto">
+    <div id="screen-menu" class="hidden p-6 max-w-md mx-auto flex flex-col min-h-screen">
         <div class="flex justify-between items-start mb-10 mt-4">
             <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-tight leading-tight">
                 BANDA SINFÓNICA<br><span id="display-band-name" class="text-blue-900"></span>
@@ -63,7 +63,7 @@
             <div class="bg-blue-50 p-4 rounded-2xl text-2xl">📋</div>
         </button>
 
-        <div class="flex justify-center opacity-90">
+        <div class="mt-auto flex justify-center opacity-90 pb-10">
             <img src="https://github.com/paisatuba1/Asistencia-Banda/blob/main/logo.png?raw=true" alt="Logo" class="max-w-[180px]">
         </div>
     </div>
