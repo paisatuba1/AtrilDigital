@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia Banda Sinfónica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hidden { display: none; }
+        .active-tab { border-bottom: 4px solid #2563eb; color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div id="login-screen" class="flex flex-col items-center justify-center min-h-screen p-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm text-center">
+            <h1 class="text-2xl font-bold mb-6 text-gray-800">Director de Banda</h1>
+            <p class="mb-4 text-gray-600">Ingresa el PIN de acceso</p>
+            <input type="password" id="pin-input" placeholder="PIN" class="w-full p-3 border rounded-lg mb-4 text-center text-xl tracking-widest">
+            <button onclick="checkPin()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Entrar</button>
+            <p id="error-msg" class="text-red-500 mt-3 hidden">PIN incorrecto</p>
+        </div>
+    </div>
+
+    <div id="app-screen" class="hidden min-h-screen pb-20">
+        <header class="bg-blue-800 text-white p-4 shadow-md sticky top-0 z-10">
+            <h2 class="text-xl font-bold">Control de Asistencia</h2>
+            <p id="current-date" class="text-sm opacity-80"></p>
+        </header>
+
+        <div class="flex bg-white shadow-sm overflow-x-auto">
+            <button onclick="showSection('MADERAS')" class="tab-btn flex-1 p-4 font-bold text-sm active-tab">MADERAS</button>
+            <button onclick="showSection('BRONCES')" class="tab-btn flex-1 p-4 font-bold text-sm text-gray-500">BRONCES</button>
+            <button onclick="showSection('CUERDAS')" class="tab-btn flex-1 p-4 font-bold text-sm text-gray-500">CUERDAS</button>
+            <button onclick="showSection('PERCUSION')" class="tab-btn flex-1 p-4 font-bold text-sm text-gray-500">PERCUSIÓN</button>
+        </div>
+
+        <div id="list-container" class="p-4">
+            </div>
+
+        <button onclick="sendData()" class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-full shadow-2xl font-bold flex items-center gap-2 hover:bg-green-700">
+            <span>Guardar en Drive</span>
+        </button>
+    </div>
+
+    <script>
+        const PIN_CORRECTO = "paisa";
+        const fechaActual = new Date().toLocaleDateString();
+        document.getElementById('current-date').innerText = fechaActual;
+
+        // Base de datos de ejemplo (esto luego lo traeremos de Sheets)
+        const musicos = [
+            { nombre: "Juan Pérez", instrumento: "Flauta", familia: "MADERAS" },
+            { nombre: "María García", instrumento: "Clarinete", familia: "MADERAS" },
+            { nombre: "Carlos Ruiz", instrumento: "Trompeta", familia: "BRONCES" },
+            { nombre: "Ana López", instrumento: "Cello", familia: "CUERDAS" },
+            { nombre: "Luis Rivas", instrumento: "Redoblante", familia: "PERCUSION" }
+        ];
+
+        function checkPin() {
+            const input = document.getElementById('pin-input').value;
+            if(input === PIN_CORRECTO) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                showSection('MADERAS');
+            } else {
+                document.getElementById('error-msg').classList.remove('hidden');
+            }
+        }
+
+        function showSection(familia) {
+            // Actualizar estilo de pestañas
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-gray-500');
+                if(btn.innerText.includes(familia)) {
+                    btn.classList.add('active-tab');
+                    btn.classList.remove('text-gray-500');
+                }
+            });
+
+            const container = document.getElementById('list-container');
+            container.innerHTML = "";
+
+            const filtrados = musicos.filter(m => m.familia === familia);
+
+            filtrados.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm mb-3 flex flex-col gap-3";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-gray-800">${m.nombre}</p>
+                            <p class="text-xs text-blue-600 font-semibold uppercase">${m.instrumento}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setStatus(this, 'P')" class="text-xs p-2 border rounded font-bold bg-gray-50 text-gray-400">P</button>
+                        <button onclick="setStatus(this, 'A')" class="text-xs p-2 border rounded font-bold bg-gray-50 text-gray-400">A</button>
+                        <button onclick="setStatus(this, 'R')" class="text-xs p-2 border rounded font-bold bg-gray-50 text-gray-400">R</button>
+                        <button onclick="setStatus(this, 'E')" class="text-xs p-2 border rounded font-bold bg-gray-50 text-gray-400">E</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function setStatus(btn, status) {
+            // Limpiar hermanos
+            const parent = btn.parentElement;
+            parent.querySelectorAll('button').forEach(b => {
+                b.className = "text-xs p-2 border rounded font-bold bg-gray-50 text-gray-400";
+            });
+            
+            // Colorear activo
+            const colors = { 'P': 'bg-green-500 text-white', 'A': 'bg-red-500 text-white', 'R': 'bg-yellow-500 text-white', 'E': 'bg-blue-400 text-white' };
+            btn.className = `text-xs p-2 border rounded font-bold ${colors[status]}`;
+        }
+
+        function sendData() {
+            alert("¡Datos listos! En el siguiente paso configuraremos la conexión con tu Google Drive para que se guarden solos.");
+        }
+    </script>
+</body>
+</html>
