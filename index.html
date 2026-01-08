@@ -14,14 +14,13 @@
         .active-tab { border-bottom: 4px solid #1e40af; color: #1e40af; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
     <div id="loader" class="hidden fixed inset-0 bg-white/95 z-50 flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-14 w-14 mb-4"></div>
-        <p id="loader-text" class="text-blue-900 font-black italic uppercase pulse">Conectando con el Cerebro...</p>
+        <p id="loader-text" class="text-blue-900 font-black italic uppercase pulse text-center px-6">Conectando con el Cerebro...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
@@ -29,11 +28,11 @@
             <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase">SINFÓNICA</h1>
             <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold italic">CONTROL MAESTRO</p>
             <div class="space-y-3">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center font-bold">
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center font-bold uppercase">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center text-2xl tracking-widest">
                 <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 uppercase">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg italic uppercase">Datos inválidos</p>
+            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg italic uppercase">Datos inválidos o error de red</p>
         </div>
     </div>
 
@@ -72,7 +71,7 @@
             <div id="event-desc-box" class="hidden">
                 <input type="text" id="event-desc" placeholder="NOMBRE DEL EVENTO" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic uppercase">
             </div>
-            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic">Siguiente</button>
+            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">Siguiente</button>
         </div>
     </div>
 
@@ -101,19 +100,19 @@
         </div>
         <div id="musicos-box" class="p-5 space-y-4"></div>
         <div class="fixed bottom-0 bg-white/95 backdrop-blur-sm w-full p-6 border-t shadow-2xl flex gap-2">
-            <button onclick="finalize()" class="flex-[2] bg-blue-900 text-white p-5 rounded-2xl font-black uppercase italic text-xs">GUARDAR EN LOG</button>
+            <button onclick="finalize()" class="flex-[2] bg-blue-900 text-white p-5 rounded-2xl font-black uppercase italic text-xs tracking-widest">GUARDAR LOG</button>
             <button onclick="prepararPDF()" class="flex-1 bg-slate-800 text-white p-5 rounded-2xl font-black uppercase italic text-xs">PDF</button>
             <button onclick="whatsappReport()" class="flex-1 bg-emerald-500 text-white p-5 rounded-2xl font-black uppercase italic text-xs">WA</button>
         </div>
     </div>
 
     <script>
-        const MOTOR_URL = "TU_URL_DE_APPS_SCRIPT_AQUI";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzEWoxfn1pj9yD3AqRxJnoctvbpY-FajhC8bLkcISdvZRRM59CjKUMKyR3iSDBvKFxmRg/exec";
         let session = { user: "", banda: "", sheetId: "", date: "", type: "", act: "", process: "", masterList: [] };
         let record = {};
         let currentFamily = "MADERAS";
 
-        function toggleLoader(v, text = "Conectando con el Cerebro...") {
+        function toggleLoader(v, text = "CONECTANDO CON EL CEREBRO...") {
             document.getElementById('loader-text').innerText = text;
             document.getElementById('loader').classList.toggle('hidden', !v);
         }
@@ -139,7 +138,9 @@
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
                 }
-            } catch (e) { alert("Error de Red"); }
+            } catch (e) { 
+                document.getElementById('login-error').classList.remove('hidden');
+            }
             toggleLoader(false);
         }
 
@@ -167,8 +168,8 @@
             session.process = proc;
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
-            session.act = session.type === 'Ensayo' ? 'Ensayo Regular' : document.getElementById('event-desc').value;
-            if(!session.act) return alert("Escribe el nombre del evento");
+            session.act = session.type === 'Ensayo' ? 'ENSAYO REGULAR' : document.getElementById('event-desc').value.toUpperCase();
+            if(!session.act) return alert("ESCRIBE EL NOMBRE DEL EVENTO");
             document.getElementById('info-header').innerText = `${proc} • ${session.act}`;
             nav('screen-list');
         }
@@ -186,7 +187,7 @@
             filtered.forEach(m => {
                 const sel = record[m.nombre] || '';
                 const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-[25px] shadow-sm border border-slate-100";
+                card.className = "bg-white p-5 rounded-[25px] shadow-sm border border-slate-100 mb-4";
                 card.innerHTML = `
                     <div class="mb-4">
                         <p class="font-black text-slate-800 italic text-sm uppercase">${m.nombre}</p>
@@ -211,35 +212,54 @@
             btn.className = `p-3 rounded-xl border-2 font-black text-xs transition-all ${getCol(est)}`;
         }
 
+        function filterList() {
+            const q = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
+        }
+
         async function finalize() {
             if(Object.keys(record).length === 0) return alert("MARCA AL MENOS UN MÚSICO");
-            toggleLoader(true, "Guardando en LOG...");
+            toggleLoader(true, "GUARDANDO EN LOG...");
             const rows = Object.entries(record).map(([nom, est]) => [session.date, session.type, session.act, session.process, nom, est, session.user]);
             try {
                 await fetch(MOTOR_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: rows })});
                 alert("✅ SINCRONIZADO CON LOG");
                 record = {};
+                document.getElementById('counter').innerText = "0 MARCADOS";
                 nav('screen-process');
-            } catch (e) { alert("Error al guardar"); }
+            } catch (e) { alert("ERROR AL GUARDAR"); }
             toggleLoader(false);
         }
 
         function prepararPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFont("helvetica", "bold");
-            doc.text(`REPORTE: ${session.banda}`, 14, 20);
+            const azulBanda = [30, 64, 175];
+
+            doc.setFillColor(azulBanda[0], azulBanda[1], azulBanda[2]);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("REPORTE DE ASISTENCIA", 14, 25);
+            
+            doc.setTextColor(60, 60, 60);
+            doc.setFontSize(11);
+            doc.text(`BANDA: ${session.banda}`, 14, 50);
+            doc.text(`ACTIVIDAD: ${session.act}`, 14, 57);
+            doc.text(`REGISTRADO POR: ${session.user.toUpperCase()}`, 14, 64);
+
             doc.autoTable({
-                startY: 30,
+                startY: 75,
                 head: [['ESTUDIANTE', 'ESTADO']],
-                body: Object.entries(record).map(([n, e]) => [n, e])
+                body: Object.entries(record).map(([n, e]) => [n, e]),
+                headStyles: { fillColor: azulBanda }
             });
-            doc.save("Reporte.pdf");
+            doc.save(`Reporte_${session.banda}.pdf`);
         }
 
         function whatsappReport() {
             const abs = Object.entries(record).filter(([n, e]) => e === 'A').map(([n]) => n);
-            let txt = `📢 *REPORTE - ${session.banda}*\n*AUSENCIAS:* \n`;
+            let txt = `📢 *REPORTE - ${session.banda}*\n📅 *Fecha:* ${session.date}\n*AUSENCIAS:* \n`;
             abs.forEach(n => txt += `• ${n}\n`);
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
         }
