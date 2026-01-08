@@ -14,13 +14,14 @@
         .active-tab { border-bottom: 4px solid #1e40af; color: #1e40af; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen font-sans">
 
     <div id="loader" class="hidden fixed inset-0 bg-white/95 z-50 flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-14 w-14 mb-4"></div>
-        <p id="loader-text" class="text-blue-900 font-black italic uppercase pulse text-center px-6">Conectando con el Cerebro...</p>
+        <p id="loader-text" class="text-blue-900 font-black italic uppercase pulse text-center px-6 tracking-tighter">CONECTANDO CON EL CEREBRO...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
@@ -30,9 +31,9 @@
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center font-bold uppercase">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center text-2xl tracking-widest">
-                <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 uppercase">INGRESAR</button>
+                <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg active:scale-95 uppercase italic">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg italic uppercase">Datos inválidos o error de red</p>
+            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg italic uppercase">DATOS INVÁLIDOS O ERROR DE RED</p>
         </div>
     </div>
 
@@ -40,7 +41,7 @@
         <div class="flex justify-between items-center mb-10 mt-4">
             <div>
                 <p class="text-[10px] font-black text-blue-500 uppercase italic">DIRECTOR ACTIVO</p>
-                <h2 id="display-band-name" class="text-xl font-black text-slate-800 leading-tight uppercase italic font-serif">Cargando...</h2>
+                <h2 id="display-band-name" class="text-xl font-black text-slate-800 leading-tight uppercase italic">Cargando...</h2>
             </div>
             <button onclick="location.reload()" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">SALIR</button>
         </div>
@@ -71,7 +72,7 @@
             <div id="event-desc-box" class="hidden">
                 <input type="text" id="event-desc" placeholder="NOMBRE DEL EVENTO" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic uppercase">
             </div>
-            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">Siguiente</button>
+            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">SIGUIENTE</button>
         </div>
     </div>
 
@@ -86,7 +87,7 @@
     <div id="screen-list" class="hidden min-h-screen pb-44">
         <div class="bg-white p-5 sticky top-0 z-20 shadow-sm border-b">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="nav('screen-process')" class="text-blue-600 font-black text-[10px] uppercase italic">← OTRO NIVEL</button>
+                <button onclick="nav('screen-process')" class="text-blue-600 font-black text-[10px] uppercase italic">← VOLVER</button>
                 <span id="counter" class="text-[9px] bg-slate-900 text-white px-3 py-1 rounded-full font-bold italic uppercase">0 MARCADOS</span>
             </div>
             <p id="info-header" class="font-black text-xs text-slate-500 italic uppercase mb-3"></p>
@@ -107,7 +108,7 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzEWoxfn1pj9yD3AqRxJnoctvbpY-FajhC8bLkcISdvZRRM59CjKUMKyR3iSDBvKFxmRg/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwSPm9_cqec1f3bwNuPKZxYpHBBkiAlqE6F1pu8P0C5B5LNhY9QPmS9QcH4RReApSSn4w/exec";
         let session = { user: "", banda: "", sheetId: "", date: "", type: "", act: "", process: "", masterList: [] };
         let record = {};
         let currentFamily = "MADERAS";
@@ -168,7 +169,7 @@
             session.process = proc;
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
-            session.act = session.type === 'Ensayo' ? 'ENSAYO REGULAR' : document.getElementById('event-desc').value.toUpperCase();
+            session.act = (session.type === 'Ensayo' ? 'ENSAYO REGULAR' : document.getElementById('event-desc').value).toUpperCase();
             if(!session.act) return alert("ESCRIBE EL NOMBRE DEL EVENTO");
             document.getElementById('info-header').innerText = `${proc} • ${session.act}`;
             nav('screen-list');
@@ -187,7 +188,7 @@
             filtered.forEach(m => {
                 const sel = record[m.nombre] || '';
                 const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-[25px] shadow-sm border border-slate-100 mb-4";
+                card.className = "musico-card bg-white p-5 rounded-[25px] shadow-sm border border-slate-100 mb-4";
                 card.innerHTML = `
                     <div class="mb-4">
                         <p class="font-black text-slate-800 italic text-sm uppercase">${m.nombre}</p>
@@ -232,6 +233,7 @@
         }
 
         function prepararPDF() {
+            if(Object.keys(record).length === 0) return alert("MARCA AL MENOS UN MÚSICO");
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const azulBanda = [30, 64, 175];
@@ -254,7 +256,7 @@
                 body: Object.entries(record).map(([n, e]) => [n, e]),
                 headStyles: { fillColor: azulBanda }
             });
-            doc.save(`Reporte_${session.banda}.pdf`);
+            doc.save(`Reporte_${session.banda}_${session.process}.pdf`);
         }
 
         function whatsappReport() {
