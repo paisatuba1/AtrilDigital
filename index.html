@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SINFÓNICA APP - CONTROL MAESTRO</title>
+    <title>ATRIL DIGITAL - CONTROL MAESTRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -25,7 +25,7 @@
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-[40px] shadow-2xl w-full max-w-sm border-t-8 border-blue-900 text-center">
-            <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase">SINFÓNICA</h1>
+            <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase">ATRIL DIGITAL</h1>
             <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold italic">CONTROL MAESTRO</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-center font-bold uppercase text-slate-700">
@@ -64,12 +64,12 @@
             <div>
                 <label class="block text-[10px] font-black text-blue-500 mb-2 uppercase tracking-widest">MODALIDAD</label>
                 <select id="event-type" onchange="toggleEventDesc()" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500 text-slate-700">
-                    <option value="Ensayo">ENSAYO REGULAR</option>
-                    <option value="Evento">EVENTO ESPECIAL</option>
+                    <option value="Ensayo">ENSAYO</option>
+                    <option value="Presentación">PRESENTACIÓN</option>
                 </select>
             </div>
             <div id="event-desc-box" class="hidden">
-                <input type="text" id="event-desc" placeholder="NOMBRE DEL EVENTO" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic uppercase tracking-tighter">
+                <input type="text" id="event-desc" placeholder="NOMBRE DE LA PRESENTACIÓN" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic uppercase tracking-tighter">
             </div>
             <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">SIGUIENTE</button>
         </div>
@@ -166,7 +166,7 @@
         }
 
         function toggleEventDesc() {
-            const isEvent = document.getElementById('event-type').value === 'Evento';
+            const isEvent = document.getElementById('event-type').value === 'Presentación';
             document.getElementById('event-desc-box').classList.toggle('hidden', !isEvent);
         }
 
@@ -174,17 +174,15 @@
             session.process = proc;
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
-            session.act = (session.type === 'Ensayo' ? 'ENSAYO REGULAR' : document.getElementById('event-desc').value).toUpperCase();
-            if(!session.act) return alert("ESCRIBE EL NOMBRE DEL EVENTO");
+            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
+            if(!session.act) return alert("ESCRIBE EL NOMBRE DE LA PRESENTACIÓN");
             document.getElementById('info-header').innerText = `${proc} • ${session.act}`;
             nav('screen-list');
         }
 
-        // Función para limpiar tildes al comparar
         const cleanStr = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
 
         function renderSection(fam) {
-            // Actualizar estilo visual de las pestañas usando IDs únicos
             document.querySelectorAll('.tab-btn').forEach(b => {
                 b.classList.remove('active-tab');
                 b.classList.add('text-slate-300');
