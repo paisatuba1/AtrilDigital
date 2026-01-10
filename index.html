@@ -30,7 +30,6 @@
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm border border-slate-100 text-center">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" alt="Logo" class="w-32 h-auto mx-auto mb-6">
-            
             <h1 class="text-2xl font-black text-slate-900 mb-1 uppercase tracking-tighter">ATRIL DIGITAL</h1>
             <p class="text-slate-400 text-[10px] mb-8 uppercase tracking-[0.3em] font-bold">Gestión de Bandas</p>
             <div class="space-y-3">
@@ -70,10 +69,8 @@
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← Volver al Menú</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black text-slate-900 uppercase mb-4 tracking-tight">Nuevo Integrante</h2>
-            
             <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
             <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
-
             <div class="grid grid-cols-2 gap-2">
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Documento</label>
@@ -84,15 +81,12 @@
                     <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
                 </div>
             </div>
-
             <input type="text" id="add-eps" placeholder="EPS / SEGURO" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
-
             <div class="space-y-3 pt-4 border-t border-slate-50">
                 <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-[11px]"></select>
                 <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-[11px]"></select>
                 <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-[11px]"></select>
             </div>
-            
             <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs tracking-widest mt-4">Guardar Registro</button>
         </div>
     </div>
@@ -234,10 +228,8 @@
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             const activeBtn = document.getElementById(`tab-${secc}`);
             if(activeBtn) { activeBtn.classList.add('active-tab'); activeBtn.classList.remove('text-slate-300'); }
-
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
             const filtered = session.masterList.filter(m => String(m.proceso).trim() === String(session.process).trim() && (secc === 'TODOS' || m.seccion === secc));
-            
             filtered.forEach(m => {
                 const fullNom = `${m.nombres} ${m.apellidos}`.toUpperCase();
                 const sel = record[fullNom] || '';
@@ -281,7 +273,6 @@
                 const parts = rawDate.split("-");
                 formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
-
             const d = {
                 nombres: document.getElementById('add-nombres').value.trim(),
                 apellidos: document.getElementById('add-apellidos').value.trim(),
@@ -292,9 +283,7 @@
                 instrumento: document.getElementById('add-instrumento').value,
                 grado: document.getElementById('add-grado').value
             };
-
             if(!d.nombres || !d.apellidos || !d.proceso) return alert("Faltan datos obligatorios");
-            
             toggleLoader(true, "Registrando Estudiante...");
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
@@ -314,8 +303,7 @@
             }));
             await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
             alert("Registro completado");
-            record = {}; 
-            nav('screen-menu');
+            record = {}; nav('screen-menu');
             toggleLoader(false);
         }
 
@@ -335,8 +323,23 @@
         }
 
         function whatsappReport() {
-            let txt = `📢 *REPORTE ${session.banda}*\n📅 ${session.date}\n*AUSENCIAS:*\n`;
-            Object.entries(record).filter(([n,e]) => e === 'AUSENTE').forEach(([n]) => txt += `• ${n}\n`);
+            const entries = Object.entries(record);
+            const retardos = entries.filter(([n, e]) => e === 'RETARDO');
+            const ausentes = entries.filter(([n, e]) => e === 'AUSENTE');
+
+            let txt = `📢 *REPORTE BANDA SINFÓNICA DE ${session.banda.toUpperCase()}*\n`;
+            txt += `📅 ${session.date}\n\n`; // Espacio solicitado después de la fecha
+
+            txt += `⏱️ *RETARDOS:*\n`;
+            if(retardos.length > 0) {
+                retardos.forEach(([n]) => txt += `• ${n}\n`);
+            } else { txt += `_Sin novedades_\n`; }
+
+            txt += `\n❌ *AUSENCIAS:*\n`;
+            if(ausentes.length > 0) {
+                ausentes.forEach(([n]) => txt += `• ${n}\n`);
+            } else { txt += `_Sin novedades_\n`; }
+
             window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
         }
     </script>
