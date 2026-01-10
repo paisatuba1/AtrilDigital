@@ -41,7 +41,7 @@
         <div class="flex justify-between items-end mb-10 mt-6">
             <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">SISTEMA ACADÉMICO</p>
-                <h2 id="display-band-name" class="text-xl font-black uppercase">---</h2>
+                <h2 id="display-band-name" class="text-xl font-black uppercase leading-none">---</h2>
             </div>
             <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Salir</button>
         </div>
@@ -111,25 +111,30 @@
             <h2 class="text-lg font-black uppercase">Nuevo Integrante</h2>
             <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
             <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento (Solo Números)</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="add-documento" placeholder="No. ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento (ID)</label>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="add-documento" placeholder="SÓLO NÚMEROS" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Fecha de Nacimiento</label>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">F. Nacimiento</label>
                     <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
+
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+            
             <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Registro</button>
         </div>
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbx56PjPgt_fm5-A5ufq4oL1kw250yUJldoXuYMPi4Ev9w6nJvRXo5KEwF1fmoloCWgrAg/exec";
+        // URL ACTUALIZADA
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbypY8EqjSt2wEcfe2sD2DMrRqVR6u4wG1APdEouYIBJ047Am27iuy272vNvk09O13I4tQ/exec";
+        
         const ORDEN_INST = ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono", "trompeta", "corno", "trombon", "eufonio", "tuba", "cello", "contrabajo", "percusion"];
 
         let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {} };
@@ -153,15 +158,14 @@
                 const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
                 if(d.success) {
-                    if(d.status === "INACTIVO") {
-                        alert("Usuario inactivo");
-                    } else {
+                    if(d.status === "INACTIVO") { alert("Usuario inactivo"); }
+                    else {
                         session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
                         await fetchData();
                         nav('screen-menu');
                     }
                 } else document.getElementById('login-error').classList.remove('hidden');
-            } catch(e) { alert("Error de conexión con Cerebro"); }
+            } catch(e) { alert("Error de conexión"); }
             loader(false);
         }
 
@@ -199,19 +203,21 @@
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
             let filtered = session.master.filter(m => String(m.proceso) === String(session.process));
+            
             filtered.sort((a,b) => {
                 let idxA = ORDEN_INST.indexOf(a.instrumento.toLowerCase());
                 let idxB = ORDEN_INST.indexOf(b.instrumento.toLowerCase());
                 if (idxA !== idxB) return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
                 return a.apellidos.localeCompare(b.apellidos);
             });
+
             filtered.forEach(m => {
                 const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
                 card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div>
                 <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','st')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('').replace(/'st'/g, "'"+st+"'")}
+                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
                 </div>`;
                 box.appendChild(card);
             });
@@ -242,8 +248,11 @@
         async function saveNewStudent() {
             const d = { nombres: document.getElementById('add-nombres').value, apellidos: document.getElementById('add-apellidos').value, documento: document.getElementById('add-documento').value, fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value, proceso: document.getElementById('add-proceso').value, instrumento: document.getElementById('add-instrumento').value, grado: document.getElementById('add-grado').value };
             loader(true, "Registrando...");
-            await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-            alert("Listo"); await fetchData(); nav('screen-menu'); loader(false);
+            try {
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
+                alert("Listo"); await fetchData(); nav('screen-menu');
+            } catch(e) { alert("Error al registrar"); }
+            loader(false);
         }
     </script>
 </body>
