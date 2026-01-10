@@ -15,6 +15,9 @@
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; }
+        .horario-cell { min-height: 60px; padding: 4px; background: white; border: 1px solid #f1f5f9; font-size: 9px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -25,7 +28,7 @@
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-sm text-center border border-slate-100">
+        <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <h1 class="text-2xl font-black mb-1 uppercase tracking-tighter">ATRIL DIGITAL</h1>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest">GESTIÓN DE BANDAS</p>
@@ -46,14 +49,79 @@
             </div>
             <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Salir</button>
         </div>
-        <button onclick="nav('screen-activity')" class="w-full bg-white p-7 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center text-left">
+        <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
             <span class="font-black text-sm uppercase">Asistencia</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">📋</div>
         </button>
-        <button onclick="nav('screen-add-student')" class="w-full bg-white p-7 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center text-left">
+        <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
             <span class="font-black text-sm uppercase">Ingresar Estudiantes</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">👤</div>
         </button>
+        <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
+            <span class="font-black text-sm uppercase">Horario Matinal</span>
+            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">📅</div>
+        </button>
+    </div>
+
+    <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20">
+        <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← Volver</button>
+        <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
+            <h2 class="text-lg font-black uppercase">Nuevo Integrante</h2>
+            <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="text" id="add-eps" placeholder="EPS / Servicio de Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento</label>
+                    <input type="text" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">F. Nacimiento</label>
+                    <input type="date" id="add-fecha_nacimiento" class="w-full h-[46px] p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                </div>
+            </div>
+            <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+            <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+            <div class="grid grid-cols-2 gap-2">
+                <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+                <select id="add-tipo_letra" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+            </div>
+            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Registro</button>
+        </div>
+    </div>
+
+    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-24">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="nav('screen-menu')" class="text-slate-400 font-black text-[11px] uppercase tracking-widest">← Volver</button>
+            <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold">
+                <option value="6">6 HORAS</option>
+                <option value="7">7 HORAS</option>
+            </select>
+        </div>
+        
+        <div class="bg-slate-100 p-1 rounded-lg">
+            <div class="horario-grid">
+                <div class="horario-header">H</div>
+                <div class="horario-header">LU</div>
+                <div class="horario-header">MA</div>
+                <div class="horario-header">MI</div>
+                <div class="horario-header">JU</div>
+                <div class="horario-header">VI</div>
+            </div>
+            <div id="horario-body" class="horario-grid"></div>
+        </div>
+
+        <div class="fixed bottom-0 left-0 w-full p-6 bg-white/90 border-t flex gap-2">
+            <button onclick="saveHorario()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Horario</button>
+        </div>
+    </div>
+
+    <div id="modal-grupo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6">
+            <h3 class="font-black uppercase text-sm mb-4">Seleccionar Grupo</h3>
+            <div id="lista-grupos-modal" class="space-y-2 max-h-60 overflow-y-auto pr-2 no-scrollbar"></div>
+            <button onclick="document.getElementById('modal-grupo').classList.add('hidden')" class="w-full mt-6 bg-slate-100 p-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
+        </div>
     </div>
 
     <div id="screen-activity" class="hidden p-6 max-w-md mx-auto">
@@ -106,35 +174,8 @@
         </div>
     </div>
 
-    <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20">
-        <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← Volver</button>
-        <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
-            <h2 class="text-lg font-black uppercase">Nuevo Integrante</h2>
-            <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="text" id="add-eps" placeholder="EPS / Servicio de Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento</label>
-                    <input type="text" inputmode="numeric" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                </div>
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">F. Nacimiento</label>
-                    <input type="date" id="add-fecha_nacimiento" class="w-full h-[46px] p-3 bg-slate-50 rounded-lg text-sm font-bold">
-                </div>
-            </div>
-            <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            <div class="grid grid-cols-2 gap-2">
-                <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-                <select id="add-tipo_letra" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            </div>
-            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Registro</button>
-        </div>
-    </div>
-
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbx6z_DgPe9fFwPE2O6f8uNcNKX5GkEmab5h_W2V14LKH-KDAraIFKZ-35SfF4bLQzHZng/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbyfKCs4cKs7RU5ihFxFuYi2RTgqzj-MGTuZ7z8VTbQU5GKV8H8YqmCJScm8lclUperAvg/exec";
         
         const SECCIONES = {
             "Maderas": ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono"],
@@ -145,8 +186,9 @@
 
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
 
-        let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {} };
+        let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
         let record = JSON.parse(localStorage.getItem('atril_rec_v5')) || {};
+        let editingCell = null;
 
         window.onload = () => { if(session.user) restore(); else nav('screen-login'); };
 
@@ -154,8 +196,7 @@
             session.current = id; localStorage.setItem('atril_v5', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
-            if(id === 'screen-list') renderList('TODOS');
+            if(id === 'screen-horario') buildHorarioTable();
         }
 
         async function loginProcess() {
@@ -166,8 +207,7 @@
                 const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
                 if(d.success) {
-                    if(d.status === "INACTIVO") alert("Usuario inactivo");
-                    else { session.user = u; session.banda = d.banda; session.sheetId = d.sheetId; await fetchData(); nav('screen-menu'); }
+                    session.user = u; session.banda = d.banda; session.sheetId = d.sheetId; await fetchData(); nav('screen-menu');
                 } else document.getElementById('login-error').classList.remove('hidden');
             } catch(e) { alert("Error de red"); }
             loader(false);
@@ -176,7 +216,7 @@
         async function fetchData() {
             const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
             const d = await r.json();
-            session.master = d.integrantes; session.config = d.config;
+            session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
             restore();
         }
 
@@ -198,6 +238,80 @@
             nav(session.current);
         }
 
+        // --- LÓGICA HORARIO ---
+        function buildHorarioTable() {
+            const numHoras = parseInt(document.getElementById('select-horas').value);
+            const box = document.getElementById('horario-body');
+            box.innerHTML = "";
+            
+            for (let h = 1; h <= numHoras; h++) {
+                // Celda de Hora
+                const hCell = document.createElement('div');
+                hCell.className = "horario-header";
+                hCell.innerText = h;
+                box.appendChild(hCell);
+                
+                // Celdas de días
+                for (let d = 1; d <= 5; d++) {
+                    const cell = document.createElement('div');
+                    cell.className = "horario-cell";
+                    cell.id = `cell-${h}-${d}`;
+                    // Cargar dato si existe en session.horario (fila h, col d)
+                    if (session.horario[h] && session.horario[h][d]) {
+                        cell.innerText = session.horario[h][d];
+                    }
+                    cell.onclick = () => openGrupoModal(h, d);
+                    box.appendChild(cell);
+                }
+            }
+        }
+
+        function openGrupoModal(h, d) {
+            editingCell = { h, d };
+            const modal = document.getElementById('modal-grupo');
+            const lista = document.getElementById('lista-grupos-modal');
+            modal.classList.remove('hidden');
+            
+            // Usamos los procesos cargados en la configuración
+            let html = `<button onclick="setGrupo('')" class="w-full text-left p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase">ELIMINAR</button>`;
+            session.config.proceso.forEach(p => {
+                html += `<button onclick="setGrupo('${p}')" class="w-full text-left p-3 bg-slate-50 rounded-lg text-[10px] font-bold uppercase">${p}</button>`;
+            });
+            lista.innerHTML = html;
+        }
+
+        function setGrupo(nombre) {
+            const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`);
+            cell.innerText = nombre;
+            document.getElementById('modal-grupo').classList.add('hidden');
+        }
+
+        async function saveHorario() {
+            loader(true, "Guardando Horario...");
+            const numHoras = parseInt(document.getElementById('select-horas').value);
+            const matriz = [["HORA", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]];
+            
+            for (let h = 1; h <= numHoras; h++) {
+                let fila = [h];
+                for (let d = 1; d <= 5; d++) {
+                    fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
+                }
+                matriz.push(fila);
+            }
+
+            try {
+                await fetch(MOTOR_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })
+                });
+                session.horario = matriz;
+                localStorage.setItem('atril_v5', JSON.stringify(session));
+                alert("HORARIO ACTUALIZADO CON ÉXITO");
+            } catch(e) { alert("Error al guardar horario"); }
+            loader(false);
+        }
+
+        // --- RESTO DE FUNCIONES (ASISTENCIA / REGISTRO) ---
         function initAt(p) {
             session.process = p; 
             session.date = document.getElementById('event-date').value;
@@ -217,12 +331,6 @@
                 if (secc === 'TODOS') return coincideProceso;
                 const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
                 return coincideProceso && miFamilia === secc;
-            });
-            filtered.sort((a,b) => {
-                let idxA = ORDEN_INST.indexOf(a.instrumento.toLowerCase());
-                let idxB = ORDEN_INST.indexOf(b.instrumento.toLowerCase());
-                if (idxA !== idxB) return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-                return a.apellidos.localeCompare(b.apellidos);
             });
             filtered.forEach(m => {
                 const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
@@ -273,7 +381,7 @@
                 grado: document.getElementById('add-grado').value,
                 tipo_letra: document.getElementById('add-tipo_letra').value 
             };
-            if(!d.nombres || !d.apellidos || !d.grado || d.grado === 'GRADO') return alert("Faltan datos obligatorios");
+            if(!d.nombres || !d.apellidos || d.grado === 'GRADO') return alert("Faltan datos obligatorios");
             loader(true, "Registrando...");
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
