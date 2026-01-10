@@ -112,8 +112,14 @@
             <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
             <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
             <div class="grid grid-cols-2 gap-2">
-                <input type="number" id="add-documento" placeholder="DOCUMENTO" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
-                <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento (Solo Números)</label>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="add-documento" placeholder="No. ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Fecha de Nacimiento</label>
+                    <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                </div>
             </div>
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
@@ -123,10 +129,7 @@
     </div>
 
     <script>
-        // URL ACTUALIZADA SEGÚN TU ÚLTIMO SCRIPT
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbx56PjPgt_fm5-A5ufq4oL1kw250yUJldoXuYMPi4Ev9w6nJvRXo5KEwF1fmoloCWgrAg/exec";
-        
-        // ORDEN DE INSTRUMENTOS SEGÚN LO SOLICITADO
         const ORDEN_INST = ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono", "trompeta", "corno", "trombon", "eufonio", "tuba", "cello", "contrabajo", "percusion"];
 
         let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {} };
@@ -195,24 +198,20 @@
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            
             let filtered = session.master.filter(m => String(m.proceso) === String(session.process));
-            
-            // Ordenamiento por el array ORDEN_INST
             filtered.sort((a,b) => {
                 let idxA = ORDEN_INST.indexOf(a.instrumento.toLowerCase());
                 let idxB = ORDEN_INST.indexOf(b.instrumento.toLowerCase());
                 if (idxA !== idxB) return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
                 return a.apellidos.localeCompare(b.apellidos);
             });
-
             filtered.forEach(m => {
                 const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
                 card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div>
                 <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
+                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','st')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('').replace(/'st'/g, "'"+st+"'")}
                 </div>`;
                 box.appendChild(card);
             });
@@ -220,16 +219,7 @@
         }
 
         function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v5', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
-        
-        function getCol(s) { 
-            return {
-                'PRESENTE': 'bg-slate-900 text-white border-slate-900', 
-                'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 
-                'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 
-                'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'
-            }[s]; 
-        }
-
+        function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
         function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
         function loader(v, t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').classList.toggle('hidden', !v); }
         function logout() { localStorage.clear(); location.reload(); }
