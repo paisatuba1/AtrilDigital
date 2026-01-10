@@ -15,7 +15,6 @@
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Estilo sobrio para inputs */
         input, select { border: 1px solid #e2e8f0 !important; }
         input:focus, select:focus { border-color: #0f172a !important; ring: 1px solid #0f172a; }
     </style>
@@ -65,30 +64,23 @@
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black text-slate-900 uppercase mb-4 tracking-tight">Nuevo Integrante</h2>
             
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Nombres y Apellidos</label>
-                <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
-                <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
-            </div>
+            <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
+            <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
 
             <div class="grid grid-cols-2 gap-2">
                 <div class="space-y-1">
                     <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Documento</label>
-                    <input type="text" id="add-documento" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
+                    <input type="text" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
                 </div>
                 <div class="space-y-1">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Fecha Nacimiento</label>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">F. Nacimiento</label>
                     <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
                 </div>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Datos Médicos (EPS)</label>
-                <input type="text" id="add-eps" class="w-full p-3 bg-slate-50 rounded-lg font-medium text-sm">
-            </div>
+            <input type="text" id="add-eps" placeholder="EPS / SEGURO" class="w-full p-4 bg-slate-50 rounded-lg font-medium text-sm">
 
-            <div class="space-y-1 pt-2">
-                <label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Información Académica</label>
+            <div class="space-y-3 pt-4 border-t border-slate-50">
                 <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-xs"></select>
                 <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-xs"></select>
                 <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg font-bold text-xs"></select>
@@ -143,7 +135,6 @@
             </div>
         </div>
         <div id="musicos-box" class="p-6 space-y-3"></div>
-        
         <div class="fixed bottom-0 bg-white/90 backdrop-blur-md w-full p-6 border-t border-slate-100 shadow-2xl flex gap-3">
             <button onclick="finalize()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[10px] tracking-widest">Guardar Reporte</button>
             <button onclick="prepararPDF()" class="flex-1 bg-slate-100 text-slate-600 p-4 rounded-xl font-bold uppercase text-[10px]">PDF</button>
@@ -191,10 +182,13 @@
         }
 
         function populateSelects() {
-            ['proceso', 'instrumento', 'grado'].forEach(k => {
+            const keys = {proceso: 'PROCESO', instrumento: 'INSTRUMENTO', grado: 'GRADO'};
+            Object.keys(keys).forEach(k => {
                 const select = document.getElementById(`add-${k}`);
                 if(session.config[k]) {
-                    select.innerHTML = session.config[k].map(opt => `<option value="${opt}">${opt.toUpperCase()}</option>`).join('');
+                    let options = `<option value="" disabled selected>SELECCIONE ${keys[k]}</option>`;
+                    options += session.config[k].map(opt => `<option value="${opt}">${opt.toUpperCase()}</option>`).join('');
+                    select.innerHTML = options;
                 }
             });
         }
@@ -211,11 +205,7 @@
         function nav(id) {
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            
-            // Fecha del día actual por defecto
-            if(id === 'screen-activity') {
-                document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
-            }
+            if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
             if(id === 'screen-list') renderList('TODOS');
         }
 
@@ -282,7 +272,7 @@
             let formattedDate = "";
             if(rawDate) {
                 const parts = rawDate.split("-");
-                formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // DD-MM-AAAA
+                formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
 
             const d = {
@@ -296,12 +286,19 @@
                 grado: document.getElementById('add-grado').value
             };
 
-            if(!d.nombres || !d.apellidos) return alert("Faltan datos obligatorios");
+            if(!d.nombres || !d.apellidos || !d.proceso) return alert("Faltan datos obligatorios");
+            
             toggleLoader(true, "Registrando...");
-            await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-            alert("Estudiante ingresado correctamente");
-            await fetchFullData(); 
-            nav('screen-menu');
+            try {
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
+                alert("Estudiante ingresado correctamente");
+                
+                // LIMPIEZA Y ACTUALIZACIÓN AUTOMÁTICA
+                ['nombres','apellidos','documento','fecha_nacimiento','eps'].forEach(id => document.getElementById(`add-${id}`).value = "");
+                await fetchFullData(); // Sincroniza la lista de nuevo
+                
+                nav('screen-menu');
+            } catch(e) { alert("Error al guardar"); }
             toggleLoader(false);
         }
 
