@@ -18,9 +18,6 @@
         input, select { border: 1px solid #e2e8f0 !important; }
         input:focus, select:focus { border-color: #0f172a !important; ring: 1px solid #0f172a; }
         .btn-status { font-size: 8.5px; padding-left: 2px; padding-right: 2px; letter-spacing: -0.5px; }
-        /* Estilo para mostrar placeholder en inputs de fecha en algunos navegadores */
-        input[type="date"]:before { content: attr(placeholder) !important; color: #94a3b8; margin-right: 0.5em; font-size: 11px; font-weight: bold; }
-        input[type="date"]:focus:before, input[type="date"]:valid:before { content: ""; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -127,7 +124,7 @@
                 </div>
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase ml-1">F. Nacimiento</label>
-                    <input type="date" id="add-fecha_nacimiento" placeholder="FECHA" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                    <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
             <input type="text" id="add-eps" placeholder="EPS / SEGURO" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
@@ -255,13 +252,19 @@
             
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
             const filtered = session.masterList.filter(m => String(m.proceso) === String(session.process) && (secc === 'TODOS' || m.seccion === secc));
+            
             filtered.forEach(m => {
                 const fullNom = `${m.nombres} ${m.apellidos}`.toUpperCase();
                 const sel = record[fullNom] || '';
                 const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-slate-100";
+                card.className = "musico-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100";
                 card.innerHTML = `
-                    <p class="font-bold text-[13px] uppercase text-slate-800 mb-3">${fullNom}</p>
+                    <div class="mb-3">
+                        <p class="font-bold text-[13px] uppercase text-slate-800 leading-none">${fullNom}</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                            ${m.instrumento} • ${m.grado}
+                        </p>
+                    </div>
                     <div class="grid grid-cols-4 gap-1">
                         ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(s => `
                             <button onclick="mark('${fullNom}','${s}', this)" class="btn-status py-3 border font-bold uppercase rounded-lg transition-all ${sel === s ? getCol(s) : 'bg-slate-50 text-slate-400 border-slate-50'}">
@@ -306,7 +309,10 @@
 
         function filterList() {
             const q = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none');
+            document.querySelectorAll('.musico-card').forEach(c => {
+                const text = c.innerText.toLowerCase();
+                c.style.display = text.includes(q) ? 'block' : 'none';
+            });
         }
 
         async function saveNewStudent() {
