@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
         .hidden { display: none; }
         .loader { border-top-color: #1e40af; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -15,67 +17,67 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen font-sans text-slate-900">
+<body class="bg-slate-100 min-h-screen text-slate-900">
 
     <div id="loader" class="hidden fixed inset-0 bg-white/95 z-50 flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-14 w-14 mb-4"></div>
-        <p id="loader-text" class="text-blue-900 font-black italic uppercase text-center px-6 italic">SINCRONIZANDO...</p>
+        <p id="loader-text" class="text-blue-900 font-black uppercase text-center px-6">SINCRONIZANDO...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-8 rounded-[40px] shadow-2xl w-full max-w-sm border-t-8 border-blue-900 text-center">
-            <h1 class="text-3xl font-black text-slate-800 mb-2 italic uppercase text-blue-900">ATRIL DIGITAL</h1>
-            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold italic">CONTROL MAESTRO</p>
+            <h1 class="text-3xl font-black text-blue-900 mb-2 uppercase">ATRIL DIGITAL</h1>
+            <p class="text-gray-400 text-[10px] mb-8 uppercase tracking-widest font-bold">CONTROL MAESTRO</p>
             <div class="space-y-3">
-                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 text-center font-bold uppercase">
+                <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 text-center font-bold">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 text-center text-2xl tracking-widest">
-                <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic">INGRESAR</button>
+                <button onclick="loginProcess()" class="w-full bg-blue-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg italic uppercase">DATOS INVÁLIDOS O INACTIVO</p>
+            <p id="login-error" class="text-red-500 text-xs mt-6 hidden font-bold bg-red-50 p-2 rounded-lg uppercase">DATOS INVÁLIDOS O INACTIVO</p>
         </div>
     </div>
 
     <div id="screen-menu" class="hidden p-6 max-w-md mx-auto space-y-4">
         <div class="flex justify-between items-center mb-10 mt-4">
             <div>
-                <p class="text-[10px] font-black text-blue-500 uppercase italic">DIRECTOR ACTIVO</p>
-                <h2 id="display-band-name" class="text-xl font-black text-slate-800 uppercase italic leading-tight">Cargando...</h2>
+                <p class="text-[10px] font-black text-blue-500 uppercase">BANDA SINFÓNICA</p>
+                <h2 id="display-band-name" class="text-xl font-black text-slate-800 uppercase leading-tight">Cargando...</h2>
             </div>
             <button onclick="location.reload()" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">SALIR</button>
         </div>
         <button onclick="nav('screen-activity')" class="w-full bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-blue-600 flex justify-between items-center active:scale-95 transition-all">
-            <p class="font-black text-slate-800 text-lg italic uppercase">ASISTENCIA</p>
+            <p class="font-black text-slate-800 text-lg uppercase">ASISTENCIA</p>
             <span class="text-3xl">📋</span>
         </button>
         <button onclick="nav('screen-add-student')" class="w-full bg-white p-8 rounded-[35px] shadow-sm border-b-4 border-emerald-500 flex justify-between items-center active:scale-95 transition-all">
-            <p class="font-black text-slate-800 text-lg italic uppercase">ESTUDIANTES</p>
+            <p class="font-black text-slate-800 text-lg uppercase">INGRESAR ESTUDIANTES</p>
             <span class="text-3xl">👤</span>
         </button>
     </div>
 
     <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20">
-        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase italic">← VOLVER</button>
+        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase text-left w-full">← VOLVER</button>
         <div class="space-y-4 bg-white p-8 rounded-[35px] shadow-xl">
-            <h2 class="text-2xl font-black italic text-slate-800 mb-4 uppercase">NUEVO INTEGRANTE</h2>
-            <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-3 bg-slate-50 rounded-xl font-bold uppercase outline-none border-2 border-transparent focus:border-emerald-500">
-            <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-3 bg-slate-50 rounded-xl font-bold uppercase outline-none border-2 border-transparent focus:border-emerald-500">
+            <h2 class="text-2xl font-black text-slate-800 mb-4 uppercase">NUEVO INTEGRANTE</h2>
+            <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500">
+            <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500">
             <input type="text" id="add-documento" placeholder="DOCUMENTO" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500">
             <input type="text" id="add-fecha_nacimiento" placeholder="FECHA NAC (DD-MM-AAAA)" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500">
-            <input type="text" id="add-eps" placeholder="EPS" class="w-full p-3 bg-slate-50 rounded-xl font-bold uppercase outline-none border-2 border-transparent focus:border-emerald-500">
+            <input type="text" id="add-eps" placeholder="EPS" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500">
             
-            <label class="block text-[10px] font-black text-emerald-600 uppercase pt-2">DETALLES ACADÉMICOS</label>
+            <label class="block text-[10px] font-black text-emerald-600 uppercase pt-2">DATOS ACADÉMICOS</label>
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500"></select>
             <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-xl font-bold outline-none border-2 border-transparent focus:border-emerald-500"></select>
             
-            <button onclick="saveNewStudent()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic mt-4">GUARDAR</button>
+            <button onclick="saveNewStudent()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black shadow-lg uppercase mt-4">GUARDAR</button>
         </div>
     </div>
 
     <div id="screen-activity" class="hidden p-6 max-w-md mx-auto">
-        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase italic">← VOLVER</button>
+        <button onclick="nav('screen-menu')" class="text-blue-600 font-black mb-6 text-xs uppercase text-left w-full">← VOLVER</button>
         <div class="space-y-6 bg-white p-8 rounded-[35px] shadow-xl">
-            <h2 class="text-2xl font-black italic text-slate-800 uppercase">ASISTENCIA</h2>
+            <h2 class="text-2xl font-black text-slate-800 uppercase">ASISTENCIA</h2>
             <div>
                 <label class="block text-[10px] font-black text-blue-500 mb-1 uppercase tracking-widest">FECHA</label>
                 <input type="date" id="event-date" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-500">
@@ -88,27 +90,27 @@
                 </select>
             </div>
             <div id="event-desc-box" class="hidden">
-                <input type="text" id="event-desc" placeholder="NOMBRE DE LA ACTIVIDAD" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold italic uppercase">
+                <input type="text" id="event-desc" placeholder="NOMBRE DE LA ACTIVIDAD" class="w-full p-4 bg-orange-50 border-2 border-orange-100 rounded-2xl outline-none font-bold uppercase">
             </div>
-            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase italic tracking-widest">CONTINUAR</button>
+            <button onclick="nav('screen-process')" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-lg uppercase tracking-widest">CONTINUAR</button>
         </div>
     </div>
 
     <div id="screen-process" class="hidden p-6 max-w-md mx-auto space-y-4 text-center">
-        <button onclick="nav('screen-activity')" class="text-blue-600 font-black mb-4 text-xs uppercase italic">← VOLVER</button>
-        <h2 class="text-xl font-black italic mb-8 text-slate-800 uppercase">PROCESO</h2>
+        <button onclick="nav('screen-activity')" class="text-blue-600 font-black mb-4 text-xs uppercase text-left w-full">← VOLVER</button>
+        <h2 class="text-xl font-black mb-8 text-slate-800 uppercase">PROCESO</h2>
         <div id="process-buttons" class="space-y-4"></div>
     </div>
 
     <div id="screen-list" class="hidden min-h-screen pb-44">
         <div class="bg-white p-5 sticky top-0 z-20 shadow-sm border-b">
             <div class="flex justify-between items-center mb-4">
-                <button onclick="nav('screen-process')" class="text-blue-600 font-black text-[10px] uppercase italic">← VOLVER</button>
-                <span id="counter" class="text-[9px] bg-slate-900 text-white px-3 py-1 rounded-full font-bold italic uppercase">0 MARCADOS</span>
+                <button onclick="nav('screen-process')" class="text-blue-600 font-black text-[10px] uppercase">← VOLVER</button>
+                <span id="counter" class="text-[9px] bg-slate-900 text-white px-3 py-1 rounded-full font-bold uppercase">0 MARCADOS</span>
             </div>
-            <p id="info-header" class="font-black text-xs text-slate-500 italic uppercase mb-3"></p>
+            <p id="info-header" class="font-black text-xs text-slate-500 uppercase mb-3"></p>
             <input type="text" id="search" onkeyup="filterList()" placeholder="BUSCAR ESTUDIANTE..." class="w-full p-4 bg-slate-100 rounded-2xl outline-none font-bold text-sm mb-4">
-            <div id="family-tabs" class="flex gap-6 overflow-x-auto no-scrollbar text-[10px] font-black uppercase tracking-tighter border-t pt-3">
+            <div id="family-tabs" class="flex gap-6 overflow-x-auto no-scrollbar text-[10px] font-black uppercase border-t pt-3">
                 <button onclick="renderList('TODOS')" id="tab-TODOS" class="tab-btn active-tab pb-2">TODOS</button>
                 <button onclick="renderList('Maderas')" id="tab-Maderas" class="tab-btn text-slate-300 pb-2">MADERAS</button>
                 <button onclick="renderList('Bronces')" id="tab-Bronces" class="tab-btn text-slate-300 pb-2">BRONCES</button>
@@ -118,9 +120,9 @@
         </div>
         <div id="musicos-box" class="p-5 space-y-4"></div>
         <div class="fixed bottom-0 bg-white/95 backdrop-blur-sm w-full p-6 border-t shadow-2xl flex gap-2">
-            <button onclick="finalize()" class="flex-[2] bg-blue-900 text-white p-5 rounded-2xl font-black uppercase italic text-xs tracking-widest">GUARDAR</button>
-            <button onclick="prepararPDF()" class="flex-1 bg-slate-800 text-white p-5 rounded-2xl font-black uppercase italic text-xs">PDF</button>
-            <button onclick="whatsappReport()" class="flex-1 bg-emerald-500 text-white p-5 rounded-2xl font-black uppercase italic text-xs">WA</button>
+            <button onclick="finalize()" class="flex-[2] bg-blue-900 text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest">GUARDAR</button>
+            <button onclick="prepararPDF()" class="flex-1 bg-slate-800 text-white p-5 rounded-2xl font-black uppercase text-xs">PDF</button>
+            <button onclick="whatsappReport()" class="flex-1 bg-emerald-500 text-white p-5 rounded-2xl font-black uppercase text-xs">WA</button>
         </div>
     </div>
 
@@ -177,7 +179,7 @@
             const box = document.getElementById('process-buttons');
             if(session.config.proceso) {
                 box.innerHTML = session.config.proceso.map(p => `
-                    <button onclick="initAttendance('${p}')" class="w-full p-8 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-blue-900 uppercase italic text-blue-900">${p}</button>
+                    <button onclick="initAttendance('${p}')" class="w-full p-8 bg-white rounded-[30px] shadow-md font-black text-left border-r-8 border-blue-900 uppercase text-blue-900">${p}</button>
                 `).join('');
             }
         }
@@ -217,7 +219,7 @@
                 const card = document.createElement('div');
                 card.className = "musico-card bg-white p-5 rounded-[25px] shadow-sm border mb-4";
                 card.innerHTML = `
-                    <div class="mb-4"><p class="font-black text-sm uppercase italic">${fullNom}</p><p class="text-[9px] text-blue-500 font-bold uppercase">${m.instrumento} • ${m.grado}</p></div>
+                    <div class="mb-4"><p class="font-black text-sm uppercase">${fullNom}</p><p class="text-[9px] text-blue-500 font-bold uppercase">${m.instrumento} • ${m.grado}</p></div>
                     <div class="grid grid-cols-2 gap-2">
                         ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(s => `<button onclick="mark('${fullNom}','${s}', this)" class="p-3 rounded-xl border-2 font-black text-[10px] transition-all ${sel === s ? getCol(s) : 'bg-slate-50 text-slate-300 border-slate-50'}">${s}</button>`).join('')}
                     </div>`;
@@ -237,12 +239,13 @@
         }
 
         async function saveNewStudent() {
+            // Se quita el .toUpperCase() para permitir minúsculas y mayúsculas
             const d = {
-                nombres: document.getElementById('add-nombres').value.trim().toUpperCase(),
-                apellidos: document.getElementById('add-apellidos').value.trim().toUpperCase(),
+                nombres: document.getElementById('add-nombres').value.trim(),
+                apellidos: document.getElementById('add-apellidos').value.trim(),
                 documento: document.getElementById('add-documento').value.trim(),
                 fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value.trim(),
-                eps: document.getElementById('add-eps').value.trim().toUpperCase(),
+                eps: document.getElementById('add-eps').value.trim(),
                 proceso: document.getElementById('add-proceso').value,
                 instrumento: document.getElementById('add-instrumento').value,
                 grado: document.getElementById('add-grado').value
