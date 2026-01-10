@@ -28,7 +28,7 @@
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm border border-slate-100 text-center">
+        <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-sm border border-slate-100 text-center">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" alt="Logo" class="w-32 h-auto mx-auto mb-6">
             <h1 class="text-2xl font-black text-slate-900 mb-1 uppercase tracking-tighter">ATRIL DIGITAL</h1>
             <p class="text-slate-400 text-[10px] mb-8 uppercase tracking-[0.3em] font-bold">Gestión de Bandas</p>
@@ -148,6 +148,11 @@
         let session = { user: "", banda: "", sheetId: "", date: "", type: "", act: "", process: "", masterList: [], config: {} };
         let record = {};
 
+        // Función para evitar cierre accidental
+        window.onbeforeunload = function() {
+            if (Object.keys(record).length > 0) return "¿Deseas salir? Se perderán los datos marcados.";
+        };
+
         function toggleLoader(v, text = "Sincronizando...") {
             document.getElementById('loader-text').innerText = text;
             document.getElementById('loader').classList.toggle('hidden', !v);
@@ -206,7 +211,12 @@
         function nav(id) {
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+            if(id === 'screen-activity') {
+                const hoy = new Date();
+                const offset = hoy.getTimezoneOffset();
+                const ajustada = new Date(hoy.getTime() - (offset*60*1000));
+                document.getElementById('event-date').value = ajustada.toISOString().split('T')[0];
+            }
             if(id === 'screen-list') renderList('TODOS');
         }
 
@@ -288,7 +298,7 @@
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
                 alert("Estudiante ingresado correctamente");
-                ['nombres','apellidos','documento','fecha_nacimiento','eps'].forEach(id => document.getElementById(`add-${id}`).value = "");
+                ['nombres','apellidos','documento','fecha_nacimiento','eps'].forEach(id => document.getElementById(`id`).value = "");
                 await fetchFullData();
                 nav('screen-menu');
             } catch(e) { alert("Error al guardar"); }
@@ -303,7 +313,8 @@
             }));
             await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
             alert("Registro completado");
-            record = {}; nav('screen-menu');
+            record = {}; 
+            nav('screen-menu');
             toggleLoader(false);
         }
 
@@ -328,7 +339,8 @@
             const ausentes = entries.filter(([n, e]) => e === 'AUSENTE');
 
             let txt = `📢 *REPORTE BANDA SINFÓNICA DE ${session.banda.toUpperCase()}*\n`;
-            txt += `📅 ${session.date}\n\n`; // Espacio solicitado después de la fecha
+            txt += `🎼 *PROCESO:* ${session.process.toUpperCase()}\n`;
+            txt += `📅 ${session.date}\n\n`;
 
             txt += `⏱️ *RETARDOS:*\n`;
             if(retardos.length > 0) {
