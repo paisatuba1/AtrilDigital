@@ -12,7 +12,7 @@
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
-        input, select { border: 1px solid #e2e8f0 !important; outline: none; }
+        input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
@@ -62,11 +62,11 @@
             <h2 class="text-lg font-black uppercase">Datos de la Jornada</h2>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">Fecha de hoy</label>
-                <input type="date" id="event-date" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm">
+                <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
             </div>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">Tipo de Encuentro</label>
-                <select id="event-type" onchange="toggleEventDesc()" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm">
+                <select id="event-type" onchange="toggleEventDesc()" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                     <option value="Ensayo">ENSAYO</option>
                     <option value="Presentación">PRESENTACIÓN</option>
                 </select>
