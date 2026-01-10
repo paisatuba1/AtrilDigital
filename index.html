@@ -110,17 +110,17 @@
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← Volver</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black uppercase">Nuevo Integrante</h2>
-            <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
-            <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
-            <input type="text" id="add-eps" placeholder="EPS / Servicio de Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            <input type="text" id="add-eps" placeholder="EPS / SERVICIO DE SALUD" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    <input type="text" inputmode="numeric" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">F. Nacimiento</label>
-                    <input type="date" id="add-fecha_nacimiento" class="w-full h-[46px] px-3 bg-slate-50 rounded-lg text-sm font-bold">
+                    <input type="date" id="add-fecha_nacimiento" class="w-full h-[46px] p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
@@ -128,10 +128,12 @@
             
             <div class="grid grid-cols-2 gap-2">
                 <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-                <select id="add-tipo_letra" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+                <select id="add-tipo_letra" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase">
+                    <option value="NINGUNA">- NINGUNA -</option>
+                </select>
             </div>
 
-            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs mt-4">Guardar Registro</button>
+            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Registro</button>
         </div>
     </div>
 
@@ -187,16 +189,15 @@
             if(session.config.proceso) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs">${p}</button>`).join('');
                 
-                ['proceso','instrumento','grado'].forEach(k => {
+                ['proceso','instrumento','grado','tipo_letra'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
-                    if(s) s.innerHTML = `<option disabled selected>${k.toUpperCase()}</option>` + session.config[k].map(o => `<option value="${o}">${o}</option>`).join('');
+                    if(s) {
+                        let options = `<option disabled selected>${k === 'tipo_letra' ? 'LETRA' : k.toUpperCase()}</option>`;
+                        if(k === 'tipo_letra') options += `<option value="NINGUNA">- NINGUNA -</option>`;
+                        options += (session.config[k] || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                        s.innerHTML = options;
+                    }
                 });
-
-                // Carga especial para TIPO_LETRA (Opcional)
-                const sLetra = document.getElementById('add-tipo_letra');
-                if(sLetra) {
-                    sLetra.innerHTML = `<option value="NINGUNA" selected>LETRA: NINGUNA</option>` + (session.config.tipo_letra || []).map(o => `<option value="${o}">${o}</option>`).join('');
-                }
             }
             nav(session.current);
         }
@@ -266,9 +267,9 @@
 
         async function saveNewStudent() {
             const d = { 
-                nombres: document.getElementById('add-nombres').value, 
-                apellidos: document.getElementById('add-apellidos').value, 
-                eps: document.getElementById('add-eps').value, 
+                nombres: document.getElementById('add-nombres').value.toUpperCase(), 
+                apellidos: document.getElementById('add-apellidos').value.toUpperCase(), 
+                eps: document.getElementById('add-eps').value.toUpperCase(), 
                 documento: document.getElementById('add-documento').value, 
                 fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value, 
                 proceso: document.getElementById('add-proceso').value, 
@@ -276,7 +277,7 @@
                 grado: document.getElementById('add-grado').value,
                 tipo_letra: document.getElementById('add-tipo_letra').value 
             };
-            if(!d.nombres || !d.apellidos || d.grado === "GRADO") return alert("Faltan datos básicos");
+            if(!d.nombres || !d.apellidos || d.grado === 'GRADO') return alert("Faltan datos obligatorios");
             loader(true, "Registrando...");
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
