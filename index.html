@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v1.4</title>
+    <title>ATRIL DIGITAL v1.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -17,7 +17,7 @@
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Grilla Horario v1.4 */
+        /* Grilla Horario v1.5 */
         .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
         .horario-cell { min-height: 65px; padding: 4px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; }
         .horario-header { background: #0f172a; color: white; padding: 10px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
@@ -36,7 +36,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v1.4</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v1.5</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -184,7 +184,7 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbyXoY9J_e5OIiSM0HDBjsKO3-H2vrEt5mFhczAiMGSNP0a6QOXqfIQgGLa9UOnvLt_czA/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbz2Ecv1rCtVdXAcWgjzyV74Ug2Bfim1kmtYw_0OAT2weOz-beau_ulIZcCbwnRNCv7sMw/exec";
         
         let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
         let record = JSON.parse(localStorage.getItem('atril_rec_v5')) || {};
@@ -233,7 +233,7 @@
                 if(d.success) {
                     session.user = u; session.banda = d.banda; session.sheetId = d.sheetId; await fetchData(); nav('screen-menu');
                 } else document.getElementById('login-error').classList.remove('hidden');
-            } catch(e) { alert("Error de red"); }
+            } catch(e) { alert("Error de red: " + e.message); }
             loader(false);
         }
 
@@ -270,7 +270,6 @@
                 for (let d = 1; d <= 5; d++) {
                     const cell = document.createElement('div');
                     cell.className = "horario-cell"; cell.id = `cell-${h}-${d}`;
-                    // Buscar datos guardados (matriz empieza en 0 para hora 1)
                     if (session.horario[h-1] && session.horario[h-1][d]) {
                         cell.innerText = session.horario[h-1][d];
                     }
@@ -325,10 +324,9 @@
                 link.href = canvas.toDataURL();
                 link.click();
                 loader(false);
-            });
+            }).catch(e => { alert("Error imagen: " + e.message); loader(false); });
         }
 
-        // --- ASISTENCIA LOGIC ---
         function prepareProcess() {
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
