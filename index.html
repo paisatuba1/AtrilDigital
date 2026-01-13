@@ -3,48 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v2.2</title>
+    <title>ATRIL DIGITAL v2.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
-        body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
         .hidden { display: none; }
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
-        .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
-        .horario-cell { min-height: 65px; padding: 4px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; }
-        .horario-header { background: #0f172a; color: white; padding: 10px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+        
+        /* Animación de entrada */
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="hidden fixed inset-0 bg-white/95 z-50 flex flex-col items-center justify-center">
+    <div id="loader" class="hidden fixed inset-0 bg-white/95 z-[100] flex flex-col items-center justify-center">
         <div class="loader rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
-        <p id="loader-text" class="text-[11px] font-bold uppercase tracking-widest">SINCRONIZANDO...</p>
+        <p id="loader-text" class="text-[11px] font-black uppercase tracking-widest">SINCRONIZANDO...</p>
     </div>
 
-    <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
+    <div id="screen-login" class="flex items-center justify-center min-h-screen p-4 fade-in">
         <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.2</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.3</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
-            <div class="space-y-3">
+            
+            <div id="login-form" class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 rounded-xl text-2xl tracking-widest">
-                <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-sm">INGRESAR</button>
+                <button id="btn-login" onclick="loginProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-sm transition-all active:scale-95">INGRESAR</button>
             </div>
+
+            <div id="welcome-msg" class="hidden py-10 fade-in">
+                <p class="text-[10px] font-black text-slate-400 uppercase">ACCESO CONCEDIDO</p>
+                <h2 id="welcome-banda" class="text-xl font-black uppercase mt-2">---</h2>
+            </div>
+
             <p id="login-error" class="text-red-600 text-[11px] mt-6 hidden font-bold uppercase">DATOS INCORRECTOS</p>
         </div>
     </div>
 
-    <div id="screen-menu" class="hidden p-6 max-w-md mx-auto space-y-4">
+    <div id="screen-menu" class="hidden p-6 max-w-md mx-auto space-y-4 fade-in">
         <div class="flex justify-between items-end mb-10 mt-6">
             <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">BANDA SINFÓNICA</p>
@@ -66,40 +74,43 @@
         </button>
     </div>
 
-    <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20">
+    <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20 fade-in">
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black uppercase">NUEVO INTEGRANTE</h2>
             <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">DOCUMENTO</label>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-slate-400 mb-1 uppercase">DOCUMENTO</label>
                     <input type="tel" id="add-documento" placeholder="Número" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase text-blue-600">FECHA NACIMIENTO</label>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-blue-500 mb-1 uppercase">FECHA DE NACIMIENTO</label>
                     <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
+
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
+            
             <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">GUARDAR REGISTRO</button>
         </div>
     </div>
 
-    <div id="screen-activity" class="hidden p-6 max-w-md mx-auto">
+    <div id="screen-activity" class="hidden p-6 max-w-md mx-auto fade-in">
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-6">
             <h2 class="text-lg font-black uppercase">DATOS DE LA JORNADA</h2>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">FECHA DE HOY</label>
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">FECHA SELECCIONADA</label>
                 <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
             </div>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">TIPO DE ENCUENTRO</label>
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">TIPO</label>
                 <select id="event-type" onchange="toggleEventDesc()" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                     <option value="Ensayo">ENSAYO</option>
                     <option value="Presentación">PRESENTACIÓN</option>
@@ -112,33 +123,104 @@
         </div>
     </div>
 
+    <div id="screen-process" class="hidden p-6 max-w-md mx-auto space-y-3"></div>
+    <div id="screen-list" class="hidden min-h-screen pb-44"></div>
+    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-32"></div>
+    <div id="modal-grupo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6"></div>
+
     <script>
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbw7ST3ntJ3OcnCvJuBKvHANM2chgsH4dRadbmtUA23k1pxSvnZ1nrzh96T-r2aMMCtljA/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v7')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v7')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v23')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v23')) || {};
 
         window.onload = () => { 
-            // Fecha de hoy por defecto
             document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
             if(session.user) restore(); else nav('screen-login'); 
         };
 
         function nav(id) {
-            session.current = id; localStorage.setItem('atril_v7', JSON.stringify(session));
+            session.current = id; 
+            localStorage.setItem('atril_v23', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-activity') {
-                document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        async function loginProcess() {
+            const btn = document.getElementById('btn-login');
+            const u = document.getElementById('user-input').value.trim();
+            const p = document.getElementById('pass-input').value.trim();
+            
+            if(!u || !p) return;
+
+            // Visual feedback
+            btn.innerText = "VERIFICANDO...";
+            btn.classList.replace('bg-slate-900', 'bg-slate-500');
+            document.getElementById('login-error').classList.add('hidden');
+
+            try {
+                const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
+                const d = await r.json();
+                
+                if(d.success) {
+                    session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
+                    
+                    // Efecto visual de bienvenida
+                    document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('welcome-banda').innerText = d.banda;
+                    document.getElementById('welcome-msg').classList.remove('hidden');
+                    
+                    setTimeout(async () => {
+                        await fetchData();
+                        nav('screen-menu');
+                    }, 1500);
+                } else {
+                    showLoginError();
+                }
+            } catch(e) { 
+                showLoginError();
+                alert("ERROR DE CONEXIÓN AL SERVIDOR"); 
             }
         }
 
-        // --- Resto de funciones idénticas a v2.1 para mantener estabilidad ---
-        // (Incluye loginProcess, fetchData, restore, saveNewStudent sin toUpperCase forzado)
+        function showLoginError() {
+            const btn = document.getElementById('btn-login');
+            btn.innerText = "INGRESAR";
+            btn.classList.replace('bg-slate-500', 'bg-slate-900');
+            document.getElementById('login-error').classList.remove('hidden');
+        }
+
+        async function fetchData() {
+            try {
+                const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
+                const d = await r.json();
+                session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
+                localStorage.setItem('atril_v23', JSON.stringify(session));
+                restore();
+            } catch(e) { console.error(e); }
+        }
+
+        function restore() {
+            document.getElementById('display-band-name').innerText = session.banda;
+            if(session.config.proceso) {
+                document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => 
+                    `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs">${p}</button>`
+                ).join('');
+                
+                ['proceso','instrumento','grado'].forEach(k => {
+                    const s = document.getElementById(`add-${k}`);
+                    if(s) {
+                        let opts = `<option disabled selected>${k.toUpperCase()}</option>`;
+                        opts += (session.config[k] || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                        s.innerHTML = opts;
+                    }
+                });
+            }
+        }
 
         async function saveNewStudent() {
             const d = { 
-                nombres: document.getElementById('add-nombres').value, // Respeta mayus/minus
+                nombres: document.getElementById('add-nombres').value, 
                 apellidos: document.getElementById('add-apellidos').value, 
                 eps: document.getElementById('add-eps').value, 
                 documento: document.getElementById('add-documento').value, 
@@ -158,7 +240,12 @@
             loader(false);
         }
 
-        // ... (Agregue aquí el resto de las funciones de v2.1 para completar el archivo)
+        function loader(v, t) {
+            document.getElementById('loader-text').innerText = t;
+            document.getElementById('loader').classList.toggle('hidden', !v);
+        }
+
+        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
