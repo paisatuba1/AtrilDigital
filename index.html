@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v2.3</title>
+    <title>ATRIL DIGITAL v2.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -15,7 +15,6 @@
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
         .horario-cell { min-height: 65px; padding: 4px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; }
         .horario-header { background: #0f172a; color: white; padding: 10px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
@@ -33,15 +32,15 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.3</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.4</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 rounded-xl text-2xl tracking-widest text-center">
-                <button id="btn-login" onclick="loginProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-sm active:scale-95 transition-transform">INGRESAR</button>
+                <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-sm">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-600 text-[11px] mt-6 hidden font-bold uppercase">USUARIO O CLAVE INCORRECTOS</p>
+            <p id="login-error" class="text-red-600 text-[11px] mt-6 hidden font-bold uppercase">DATOS INCORRECTOS</p>
         </div>
     </div>
 
@@ -49,20 +48,20 @@
         <div class="flex justify-between items-end mb-10 mt-6">
             <div>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">BANDA SINFÓNICA</p>
-                <h2 id="display-band-name" class="text-xl font-black uppercase leading-none text-slate-900">---</h2>
+                <h2 id="display-band-name" class="text-xl font-black uppercase leading-none">---</h2>
             </div>
             <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">SALIR</button>
         </div>
         <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase text-slate-700">ASISTENCIA</span>
+            <span class="font-black text-sm uppercase">ASISTENCIA</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📋</div>
         </button>
         <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase text-slate-700">INGRESAR ESTUDIANTES</span>
+            <span class="font-black text-sm uppercase">INGRESAR ESTUDIANTES</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">👤</div>
         </button>
         <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase text-slate-700">HORARIO MATINAL</span>
+            <span class="font-black text-sm uppercase">HORARIO MATINAL</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📅</div>
         </button>
     </div>
@@ -94,7 +93,7 @@
     <div id="screen-activity" class="hidden p-6 max-w-md mx-auto">
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-6">
-            <h2 class="text-lg font-black uppercase text-slate-900">DATOS DE LA JORNADA</h2>
+            <h2 class="text-lg font-black uppercase">DATOS DE LA JORNADA</h2>
             <div>
                 <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">FECHA</label>
                 <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
@@ -113,115 +112,88 @@
         </div>
     </div>
 
-    <div id="screen-process" class="hidden p-6 max-w-md mx-auto space-y-3">
-        <button onclick="nav('screen-activity')" class="text-slate-400 font-black mb-4 text-[11px] uppercase tracking-widest">← VOLVER</button>
-        <div id="process-buttons" class="space-y-3"></div>
-    </div>
-
-    <div id="screen-list" class="hidden min-h-screen pb-44">
-        <div class="bg-white p-6 sticky top-0 z-20 shadow-sm border-b">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="nav('screen-process')" class="text-slate-400 font-black text-[11px] uppercase">← ATRÁS</button>
-                <span id="counter" class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-black uppercase">0 Marcados</span>
+    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-32">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="nav('screen-menu')" class="text-slate-400 font-black text-[11px] uppercase tracking-widest">← VOLVER</button>
+            <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold uppercase">
+                <option value="6">6 HORAS</option>
+                <option value="7">7 HORAS</option>
+            </select>
+        </div>
+        <div id="capture-area" class="bg-white p-4 rounded-xl">
+            <div class="text-center mb-4">
+                <h3 id="horario-banda-title" class="text-sm font-black uppercase">---</h3>
             </div>
-            <p id="info-header" class="font-black text-[12px] uppercase mb-4 text-slate-400"></p>
-            <input type="text" id="search" onkeyup="filterList()" placeholder="BUSCAR ESTUDIANTE..." class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold mb-4 uppercase">
-            <div id="family-tabs" class="flex gap-4 overflow-x-auto no-scrollbar text-[11px] font-black uppercase border-t pt-4">
-                <button onclick="renderList('TODOS')" id="tab-TODOS" class="tab-btn active-tab pb-2">TODOS</button>
-                <button onclick="renderList('Maderas')" id="tab-Maderas" class="tab-btn text-slate-300 pb-2">Maderas</button>
-                <button onclick="renderList('Bronces')" id="tab-Bronces" class="tab-btn text-slate-300 pb-2">Bronces</button>
-                <button onclick="renderList('Cuerdas')" id="tab-Cuerdas" class="tab-btn text-slate-300 pb-2">Cuerdas</button>
-                <button onclick="renderList('Percusion')" id="tab-Percusion" class="tab-btn text-slate-300 pb-2">Percusión</button>
+            <div class="horario-grid">
+                <div class="horario-header">HORA</div>
+                <div class="horario-header">LUN</div>
+                <div class="horario-header">MAR</div>
+                <div class="horario-header">MIE</div>
+                <div class="horario-header">JUE</div>
+                <div class="horario-header">VIE</div>
+                <div id="horario-body" class="contents"></div>
             </div>
         </div>
-        <div id="musicos-box" class="p-6 space-y-3"></div>
-        <div class="fixed bottom-0 bg-white/90 backdrop-blur-md w-full p-6 border-t shadow-2xl flex gap-3">
-            <button onclick="finalize()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[11px]">GUARDAR ASISTENCIA</button>
-            <button onclick="whatsappReport()" class="flex-1 bg-slate-100 text-slate-600 p-4 rounded-xl font-bold uppercase text-[11px]">WA</button>
+        <div class="fixed bottom-0 left-0 w-full p-6 bg-white/90 border-t flex gap-2">
+            <button onclick="saveHorario()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[10px]">GUARDAR HORARIO</button>
+            <button onclick="downloadHorario()" class="flex-1 bg-slate-100 text-slate-700 p-4 rounded-xl font-bold uppercase text-[10px]">IMAGEN</button>
+        </div>
+    </div>
+
+    <div id="modal-grupo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6 text-center">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6">
+            <h3 class="font-black uppercase text-sm mb-4">SELECCIONAR GRUPO</h3>
+            <div id="lista-grupos-modal" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            <button onclick="document.getElementById('modal-grupo').classList.add('hidden')" class="w-full mt-6 bg-slate-100 p-3 rounded-xl font-bold text-xs uppercase text-slate-500">CANCELAR</button>
         </div>
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbw7ST3ntJ3OcnCvJuBKvHANM2chgsH4dRadbmtUA23k1pxSvnZ1nrzh96T-r2aMMCtljA/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbywnHl_Uk9CJEQAmX9uF52nQPN0xCIdtHdS76jO4WPxg0gPqSPNFHjVtpnnSVaP_R6xYg/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v23')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {} };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v23')) || {};
-
-        const SECCIONES = {
-            "Maderas": ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono"],
-            "Bronces": ["trompeta", "corno", "trombon", "eufonio", "tuba"],
-            "Cuerdas": ["cello", "contrabajo", "violin", "viola"],
-            "Percusion": ["percusion"]
-        };
-
-        const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
+        let session = JSON.parse(localStorage.getItem('atril_v24')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = {};
+        let editingCell = null;
 
         window.onload = () => {
-            setTodayDate();
-            if(session.user) restore(); else nav('screen-login'); 
+            document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
+            if(session.user) restore(); else nav('screen-login');
         };
 
-        function setTodayDate() {
-            const hoy = new Date().toISOString().split('T')[0];
-            const inputFecha = document.getElementById('event-date');
-            if(inputFecha) inputFecha.value = hoy;
-        }
-
         function nav(id) {
-            session.current = id; 
-            localStorage.setItem('atril_v23', JSON.stringify(session));
+            session.current = id; localStorage.setItem('atril_v24', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-activity') setTodayDate();
-        }
-
-        async function loginProcess() {
-            const u = document.getElementById('user-input').value.trim();
-            const p = document.getElementById('pass-input').value.trim();
-            if(!u || !p) return;
-
-            document.getElementById('login-error').classList.add('hidden');
-            loader(true, "VERIFICANDO CREDENCIALES...");
-            
-            try {
-                const response = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
-                const data = await response.json();
-                
-                if(data.success) {
-                    session.user = u;
-                    session.banda = data.banda;
-                    session.sheetId = data.sheetId;
-                    await fetchData();
-                    nav('screen-menu');
-                } else {
-                    document.getElementById('login-error').classList.remove('hidden');
-                    loader(false);
-                }
-            } catch(e) {
-                alert("ERROR DE RED: VERIFIQUE SU CONEXIÓN");
-                loader(false);
+            if(id === 'screen-horario') {
+                document.getElementById('horario-banda-title').innerText = session.banda;
+                buildHorarioTable();
             }
         }
 
-        async function fetchData() {
-            loader(true, "SINCRONIZANDO DATOS...");
+        async function loginProcess() {
+            const u = document.getElementById('user-input').value.trim(), p = document.getElementById('pass-input').value.trim();
+            if(!u || !p) return;
+            loader(true, "VALIDANDO...");
             try {
-                const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
+                const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
-                session.master = d.integrantes;
-                session.config = d.config;
-                restore();
-            } catch(e) { console.error(e); }
+                if(d.success) {
+                    session.user = u; session.banda = d.banda; session.sheetId = d.sheetId; await fetchData(); nav('screen-menu');
+                } else document.getElementById('login-error').classList.remove('hidden');
+            } catch(e) { alert("ERROR DE CONEXIÓN"); }
             loader(false);
+        }
+
+        async function fetchData() {
+            const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
+            const d = await r.json();
+            session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
+            restore();
         }
 
         function restore() {
             document.getElementById('display-band-name').innerText = session.banda;
             if(session.config.proceso) {
-                document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => 
-                    `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-black text-left uppercase text-xs text-slate-700">${p}</button>`
-                ).join('');
-                
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s) {
@@ -231,122 +203,70 @@
                     }
                 });
             }
-            nav(session.current);
         }
 
-        function initAt(p) {
-            session.process = p; 
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
-            nav('screen-list');
-            renderList('TODOS');
-        }
-
-        function renderList(secc) {
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
-            document.getElementById(`tab-${secc}`).classList.add('active-tab');
-            const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            
-            let filtered = session.master.filter(m => String(m.proceso) === String(session.process))
-            .sort((a, b) => ORDEN_INST.indexOf(a.instrumento.toLowerCase()) - ORDEN_INST.indexOf(b.instrumento.toLowerCase()));
-
-            if (secc !== 'TODOS') {
-                filtered = filtered.filter(m => {
-                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
-                    return miFamilia === secc;
-                });
+        function buildHorarioTable() {
+            const hMax = parseInt(document.getElementById('select-horas').value);
+            const box = document.getElementById('horario-body'); box.innerHTML = "";
+            for (let h = 1; h <= hMax; h++) {
+                const header = document.createElement('div'); header.className = "horario-header"; header.innerText = h; box.appendChild(header);
+                for (let d = 1; d <= 5; d++) {
+                    const cell = document.createElement('div');
+                    cell.className = "horario-cell"; cell.id = `cell-${h}-${d}`;
+                    // Buscar contenido guardado en session.horario
+                    if (session.horario && session.horario[h-1] && session.horario[h-1][d]) {
+                        cell.innerText = session.horario[h-1][d];
+                    }
+                    cell.onclick = () => openGrupoModal(h, d);
+                    box.appendChild(cell);
+                }
             }
+        }
 
-            filtered.forEach(m => {
-                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
-                card.innerHTML = `<div class="mb-3">
-                    <p class="font-bold text-[13px] uppercase leading-none text-slate-800">${n}</p>
-                    <p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p>
-                </div>
-                <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
-                </div>`;
-                box.appendChild(card);
+        function openGrupoModal(h, d) {
+            editingCell = { h, d };
+            document.getElementById('modal-grupo').classList.remove('hidden');
+            let html = `<button onclick="setGrupo('')" class="w-full p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase">VACIAR</button>`;
+            session.config.proceso.forEach(p => {
+                html += `<button onclick="setGrupo('${p}')" class="w-full p-3 bg-slate-50 rounded-lg text-[10px] font-bold uppercase">${p}</button>`;
             });
-            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
+            document.getElementById('lista-grupos-modal').innerHTML = html;
         }
 
-        function mark(n, st) { 
-            record[n] = st; 
-            localStorage.setItem('atril_rec_v23', JSON.stringify(record)); 
-            renderList(document.querySelector('.active-tab').id.split('-')[1]); 
-        }
-        
-        function getCol(s) { 
-            return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; 
+        function setGrupo(v) {
+            document.getElementById(`cell-${editingCell.h}-${editingCell.d}`).innerText = v;
+            document.getElementById('modal-grupo').classList.add('hidden');
         }
 
-        function toggleEventDesc() { 
-            document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); 
-        }
-
-        function prepareProcess() {
-            session.date = document.getElementById('event-date').value;
-            session.type = document.getElementById('event-type').value;
-            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
-            if(!session.date || !session.act) return alert("COMPLETE LA FECHA Y EL NOMBRE DEL EVENTO");
-            nav('screen-process');
-        }
-
-        async function saveNewStudent() {
-            const d = { 
-                nombres: document.getElementById('add-nombres').value, 
-                apellidos: document.getElementById('add-apellidos').value, 
-                eps: document.getElementById('add-eps').value, 
-                documento: document.getElementById('add-documento').value, 
-                fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value, 
-                proceso: document.getElementById('add-proceso').value, 
-                instrumento: document.getElementById('add-instrumento').value, 
-                grado: document.getElementById('add-grado').value 
-            };
-            if(!d.nombres || !d.apellidos) return alert("NOMBRES Y APELLIDOS SON OBLIGATORIOS");
-            loader(true, "REGISTRANDO...");
+        async function saveHorario() {
+            loader(true, "GUARDANDO HORARIO...");
+            const hMax = parseInt(document.getElementById('select-horas').value);
+            const matriz = [["HORA", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]];
+            for (let h = 1; h <= hMax; h++) {
+                let fila = [h];
+                for (let d = 1; d <= 5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
+                matriz.push(fila);
+            }
             try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-                alert("REGISTRO EXITOSO"); 
-                document.querySelectorAll('#screen-add-student input').forEach(i => i.value = "");
-                await fetchData();
-            } catch(e) { alert("ERROR AL GUARDAR"); }
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
+                session.horario = matriz.slice(1);
+                localStorage.setItem('atril_v24', JSON.stringify(session));
+                alert("¡HORARIO GUARDADO!");
+            } catch(e) { alert("ERROR"); }
             loader(false);
         }
 
-        async function finalize() {
-            if(!Object.keys(record).length) return alert("NO HAY MARCACIONES");
-            loader(true, "GUARDANDO ASISTENCIA...");
-            const data = Object.entries(record).map(([n, e]) => ({ 
-                fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e 
-            }));
-            try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
-                alert("ASISTENCIA GUARDADA CORRECTAMENTE"); 
-                record = {}; localStorage.removeItem('atril_rec_v23'); nav('screen-menu');
-            } catch(e) { alert("ERROR DE CONEXIÓN AL GUARDAR"); }
-            loader(false);
+        function downloadHorario() {
+            loader(true, "CREANDO IMAGEN...");
+            html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => {
+                const a = document.createElement('a'); a.download = `Horario-${session.banda}.png`; a.href = canvas.toDataURL(); a.click();
+                loader(false);
+            });
         }
 
-        function loader(v, t) { 
-            document.getElementById('loader-text').innerText = t; 
-            document.getElementById('loader').classList.toggle('hidden', !v); 
-        }
-
+        function loader(v, t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').classList.toggle('hidden', !v); }
         function logout() { localStorage.clear(); location.reload(); }
-        
-        function filterList() { 
-            const q = document.getElementById('search').value.toLowerCase(); 
-            document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none'); 
-        }
-
-        function whatsappReport() {
-            const e = Object.entries(record), r = e.filter(([n, s]) => s === 'RETARDO'), a = e.filter(([n, s]) => s === 'AUSENTE');
-            let t = `📢 *REPORTE ${session.banda.toUpperCase()}*\n📅 ${session.date}\n\n⏱️ *RETARDOS:*\n${r.length ? r.map(([n]) => `• ${n}`).join('\n') : '_Sin novedades_'}\n\n❌ *AUSENCIAS:*\n${a.length ? a.map(([n]) => `• ${n}`).join('\n') : '_Sin novedades_'}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(t)}`);
-        }
+        function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
     </script>
 </body>
 </html>
