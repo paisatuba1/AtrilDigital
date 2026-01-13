@@ -30,8 +30,11 @@
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
-            <h1 class="text-2xl font-black mb-1 uppercase tracking-tighter">ATRIL DIGITAL</h1>
-            <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest">GESTIÓN DE BANDAS</p>
+            <div class="flex items-center justify-center gap-2 mb-1">
+                <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black">V 1.0</span>
+            </div>
+            <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 rounded-xl text-2xl tracking-widest">
@@ -72,20 +75,17 @@
             <input type="text" id="add-eps" placeholder="EPS / Servicio de Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">Documento</label>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">Documento</label>
                     <input type="text" id="add-documento" placeholder="ID" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
                 <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">F. Nacimiento</label>
+                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">F. Nacimiento</label>
                     <input type="date" id="add-fecha_nacimiento" class="w-full h-[46px] p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            <div class="grid grid-cols-2 gap-2">
-                <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-                <select id="add-tipo_letra" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            </div>
+            <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Registro</button>
         </div>
     </div>
@@ -93,13 +93,13 @@
     <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-24">
         <div class="flex justify-between items-center mb-6">
             <button onclick="nav('screen-menu')" class="text-slate-400 font-black text-[11px] uppercase tracking-widest">← Volver</button>
-            <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold">
+            <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold uppercase">
                 <option value="6">6 HORAS</option>
                 <option value="7">7 HORAS</option>
             </select>
         </div>
         
-        <div class="bg-slate-100 p-1 rounded-lg">
+        <div class="bg-slate-100 p-1 rounded-lg overflow-hidden">
             <div class="horario-grid">
                 <div class="horario-header">H</div>
                 <div class="horario-header">LU</div>
@@ -117,7 +117,7 @@
     </div>
 
     <div id="modal-grupo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-xs rounded-3xl p-6">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl">
             <h3 class="font-black uppercase text-sm mb-4">Seleccionar Grupo</h3>
             <div id="lista-grupos-modal" class="space-y-2 max-h-60 overflow-y-auto pr-2 no-scrollbar"></div>
             <button onclick="document.getElementById('modal-grupo').classList.add('hidden')" class="w-full mt-6 bg-slate-100 p-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
@@ -177,6 +177,10 @@
     <script>
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbyfKCs4cKs7RU5ihFxFuYi2RTgqzj-MGTuZ7z8VTbQU5GKV8H8YqmCJScm8lclUperAvg/exec";
         
+        let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v5')) || {};
+        let editingCell = null;
+
         const SECCIONES = {
             "Maderas": ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono"],
             "Bronces": ["trompeta", "corno", "trombon", "eufonio", "tuba"],
@@ -185,10 +189,6 @@
         };
 
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
-
-        let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v5')) || {};
-        let editingCell = null;
 
         window.onload = () => { if(session.user) restore(); else nav('screen-login'); };
 
@@ -225,11 +225,11 @@
             if(session.config.proceso) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs">${p}</button>`).join('');
                 
-                ['proceso','instrumento','grado','tipo_letra'].forEach(k => {
+                // CARGAR SELECTS (Eliminado tipo_letra)
+                ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s) {
-                        let options = `<option disabled selected>${k === 'tipo_letra' ? 'LETRA' : k.toUpperCase()}</option>`;
-                        if(k === 'tipo_letra') options += `<option value="NINGUNA">- NINGUNA -</option>`;
+                        let options = `<option disabled selected>${k.toUpperCase()}</option>`;
                         options += (session.config[k] || []).map(o => `<option value="${o}">${o}</option>`).join('');
                         s.innerHTML = options;
                     }
@@ -243,23 +243,13 @@
             const numHoras = parseInt(document.getElementById('select-horas').value);
             const box = document.getElementById('horario-body');
             box.innerHTML = "";
-            
             for (let h = 1; h <= numHoras; h++) {
-                // Celda de Hora
                 const hCell = document.createElement('div');
-                hCell.className = "horario-header";
-                hCell.innerText = h;
-                box.appendChild(hCell);
-                
-                // Celdas de días
+                hCell.className = "horario-header"; hCell.innerText = h; box.appendChild(hCell);
                 for (let d = 1; d <= 5; d++) {
                     const cell = document.createElement('div');
-                    cell.className = "horario-cell";
-                    cell.id = `cell-${h}-${d}`;
-                    // Cargar dato si existe en session.horario (fila h, col d)
-                    if (session.horario[h] && session.horario[h][d]) {
-                        cell.innerText = session.horario[h][d];
-                    }
+                    cell.className = "horario-cell"; cell.id = `cell-${h}-${d}`;
+                    if (session.horario[h] && session.horario[h][d]) cell.innerText = session.horario[h][d];
                     cell.onclick = () => openGrupoModal(h, d);
                     box.appendChild(cell);
                 }
@@ -271,8 +261,6 @@
             const modal = document.getElementById('modal-grupo');
             const lista = document.getElementById('lista-grupos-modal');
             modal.classList.remove('hidden');
-            
-            // Usamos los procesos cargados en la configuración
             let html = `<button onclick="setGrupo('')" class="w-full text-left p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase">ELIMINAR</button>`;
             session.config.proceso.forEach(p => {
                 html += `<button onclick="setGrupo('${p}')" class="w-full text-left p-3 bg-slate-50 rounded-lg text-[10px] font-bold uppercase">${p}</button>`;
@@ -281,45 +269,40 @@
         }
 
         function setGrupo(nombre) {
-            const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`);
-            cell.innerText = nombre;
+            document.getElementById(`cell-${editingCell.h}-${editingCell.d}`).innerText = nombre;
             document.getElementById('modal-grupo').classList.add('hidden');
         }
 
         async function saveHorario() {
-            loader(true, "Guardando Horario...");
+            loader(true, "Guardando...");
             const numHoras = parseInt(document.getElementById('select-horas').value);
             const matriz = [["HORA", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]];
-            
             for (let h = 1; h <= numHoras; h++) {
                 let fila = [h];
-                for (let d = 1; d <= 5; d++) {
-                    fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
-                }
+                for (let d = 1; d <= 5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
                 matriz.push(fila);
             }
-
             try {
-                await fetch(MOTOR_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })
-                });
-                session.horario = matriz;
-                localStorage.setItem('atril_v5', JSON.stringify(session));
+                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
+                session.horario = matriz; localStorage.setItem('atril_v5', JSON.stringify(session));
                 alert("HORARIO ACTUALIZADO CON ÉXITO");
-            } catch(e) { alert("Error al guardar horario"); }
+            } catch(e) { alert("Error al guardar"); }
             loader(false);
         }
 
-        // --- RESTO DE FUNCIONES (ASISTENCIA / REGISTRO) ---
+        // --- ASISTENCIA Y REGISTRO ---
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v5', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
+        function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
+        function loader(v, t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').classList.toggle('hidden', !v); }
+        function logout() { localStorage.clear(); location.reload(); }
+        function filterList() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none'); }
+        
         function initAt(p) {
-            session.process = p; 
-            session.date = document.getElementById('event-date').value;
-            session.type = document.getElementById('event-type').value;
+            session.process = p; session.date = document.getElementById('event-date').value; session.type = document.getElementById('event-type').value;
             session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
             if(!session.act) return alert("Falta nombre actividad");
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`;
-            nav('screen-list');
+            document.getElementById('info-header').innerText = `${p} • ${session.act}`; nav('screen-list');
         }
 
         function renderList(secc) {
@@ -336,7 +319,7 @@
                 const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
                 const card = document.createElement('div');
                 card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
-                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div>
+                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">${m.instrumento} • ${m.grado}</p></div>
                 <div class="grid grid-cols-4 gap-1">
                 ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
                 </div>`;
@@ -345,20 +328,13 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v5', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
-        function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
-        function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
-        function loader(v, t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').classList.toggle('hidden', !v); }
-        function logout() { localStorage.clear(); location.reload(); }
-        function filterList() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none'); }
-
         async function finalize() {
             if(!Object.keys(record).length) return alert("Nada que guardar");
             loader(true, "Guardando...");
             const data = Object.entries(record).map(([n, e]) => ({ fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e }));
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
-                alert("Guardado"); record = {}; localStorage.removeItem('atril_rec_v5'); nav('screen-menu');
+                alert("ASISTENCIA GUARDADA"); record = {}; localStorage.removeItem('atril_rec_v5'); nav('screen-menu');
             } catch(e) { alert("Error al guardar"); }
             loader(false);
         }
@@ -378,14 +354,13 @@
                 fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value, 
                 proceso: document.getElementById('add-proceso').value, 
                 instrumento: document.getElementById('add-instrumento').value, 
-                grado: document.getElementById('add-grado').value,
-                tipo_letra: document.getElementById('add-tipo_letra').value 
+                grado: document.getElementById('add-grado').value 
             };
             if(!d.nombres || !d.apellidos || d.grado === 'GRADO') return alert("Faltan datos obligatorios");
             loader(true, "Registrando...");
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-                alert("Registro Exitoso");
+                alert("REGISTRO EXITOSO");
                 document.querySelectorAll('#screen-add-student input').forEach(i => i.value = "");
                 document.querySelectorAll('#screen-add-student select').forEach(s => s.selectedIndex = 0);
                 await fetchData();
