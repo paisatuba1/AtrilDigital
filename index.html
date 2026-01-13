@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL</title>
+    <title>ATRIL DIGITAL v1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
@@ -32,7 +32,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black">V 1.0</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase">v1.1</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -50,7 +50,7 @@
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">BANDA SINFÓNICA</p>
                 <h2 id="display-band-name" class="text-xl font-black uppercase leading-none">---</h2>
             </div>
-            <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">Salir</button>
+            <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Salir</button>
         </div>
         <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
             <span class="font-black text-sm uppercase">Asistencia</span>
@@ -98,7 +98,6 @@
                 <option value="7">7 HORAS</option>
             </select>
         </div>
-        
         <div class="bg-slate-100 p-1 rounded-lg overflow-hidden">
             <div class="horario-grid">
                 <div class="horario-header">H</div>
@@ -110,7 +109,6 @@
             </div>
             <div id="horario-body" class="horario-grid"></div>
         </div>
-
         <div class="fixed bottom-0 left-0 w-full p-6 bg-white/90 border-t flex gap-2">
             <button onclick="saveHorario()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Horario</button>
         </div>
@@ -129,11 +127,11 @@
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-6">
             <h2 class="text-lg font-black uppercase">Datos de la Jornada</h2>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">Fecha de hoy</label>
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Fecha de hoy</label>
                 <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
             </div>
             <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">Tipo de Encuentro</label>
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Tipo de Encuentro</label>
                 <select id="event-type" onchange="toggleEventDesc()" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
                     <option value="Ensayo">ENSAYO</option>
                     <option value="Presentación">PRESENTACIÓN</option>
@@ -190,7 +188,16 @@
 
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
 
-        window.onload = () => { if(session.user) restore(); else nav('screen-login'); };
+        window.onload = () => { 
+            setTodayDate();
+            if(session.user) restore(); 
+            else nav('screen-login'); 
+        };
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('event-date').value = today;
+        }
 
         function nav(id) {
             session.current = id; localStorage.setItem('atril_v5', JSON.stringify(session));
@@ -224,8 +231,6 @@
             document.getElementById('display-band-name').innerText = session.banda;
             if(session.config.proceso) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs">${p}</button>`).join('');
-                
-                // CARGAR SELECTS (Eliminado tipo_letra)
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s) {
@@ -238,7 +243,48 @@
             nav(session.current);
         }
 
-        // --- LÓGICA HORARIO ---
+        function initAt(p) {
+            session.process = p; 
+            session.date = document.getElementById('event-date').value; 
+            session.type = document.getElementById('event-type').value;
+            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
+            if(!session.act) return alert("Falta nombre actividad");
+            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
+            nav('screen-list');
+            renderList('TODOS'); // SOLUCIÓN: Renderizar inmediatamente al entrar
+        }
+
+        function renderList(secc) {
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
+            document.getElementById(`tab-${secc}`).classList.add('active-tab');
+            const box = document.getElementById('musicos-box'); box.innerHTML = "";
+            
+            // Filtrar y ordenar por jerarquía
+            let filtered = session.master
+                .filter(m => String(m.proceso) === String(session.process))
+                .sort((a, b) => ORDEN_INST.indexOf(a.instrumento.toLowerCase()) - ORDEN_INST.indexOf(b.instrumento.toLowerCase()));
+
+            if (secc !== 'TODOS') {
+                filtered = filtered.filter(m => {
+                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
+                    return miFamilia === secc;
+                });
+            }
+
+            filtered.forEach(m => {
+                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
+                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">${m.instrumento} • ${m.grado}</p></div>
+                <div class="grid grid-cols-4 gap-1">
+                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
+                </div>`;
+                box.appendChild(card);
+            });
+            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
+        }
+
+        // --- LÓGICA HORARIO Y OTROS ---
         function buildHorarioTable() {
             const numHoras = parseInt(document.getElementById('select-horas').value);
             const box = document.getElementById('horario-body');
@@ -261,7 +307,7 @@
             const modal = document.getElementById('modal-grupo');
             const lista = document.getElementById('lista-grupos-modal');
             modal.classList.remove('hidden');
-            let html = `<button onclick="setGrupo('')" class="w-full text-left p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase">ELIMINAR</button>`;
+            let html = `<button onclick="setGrupo('')" class="w-full text-left p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest">ELIMINAR</button>`;
             session.config.proceso.forEach(p => {
                 html += `<button onclick="setGrupo('${p}')" class="w-full text-left p-3 bg-slate-50 rounded-lg text-[10px] font-bold uppercase">${p}</button>`;
             });
@@ -290,7 +336,6 @@
             loader(false);
         }
 
-        // --- ASISTENCIA Y REGISTRO ---
         function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v5', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
         function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
@@ -298,36 +343,6 @@
         function logout() { localStorage.clear(); location.reload(); }
         function filterList() { const q = document.getElementById('search').value.toLowerCase(); document.querySelectorAll('.musico-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none'); }
         
-        function initAt(p) {
-            session.process = p; session.date = document.getElementById('event-date').value; session.type = document.getElementById('event-type').value;
-            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
-            if(!session.act) return alert("Falta nombre actividad");
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`; nav('screen-list');
-        }
-
-        function renderList(secc) {
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
-            document.getElementById(`tab-${secc}`).classList.add('active-tab');
-            const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            let filtered = session.master.filter(m => {
-                const coincideProceso = String(m.proceso) === String(session.process);
-                if (secc === 'TODOS') return coincideProceso;
-                const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
-                return coincideProceso && miFamilia === secc;
-            });
-            filtered.forEach(m => {
-                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
-                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">${m.instrumento} • ${m.grado}</p></div>
-                <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
-                </div>`;
-                box.appendChild(card);
-            });
-            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
-        }
-
         async function finalize() {
             if(!Object.keys(record).length) return alert("Nada que guardar");
             loader(true, "Guardando...");
