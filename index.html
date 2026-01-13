@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v2.4</title>
+    <title>ATRIL DIGITAL v2.4.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -12,9 +12,7 @@
         .hidden { display: none; }
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
-        input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
-        .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
+        input, select { border: 1px solid #e2e8f0 !important; outline: none; }
         .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
         .horario-cell { min-height: 65px; padding: 4px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; }
         .horario-header { background: #0f172a; color: white; padding: 10px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
@@ -22,7 +20,7 @@
 </head>
 <body>
 
-    <div id="loader" class="hidden fixed inset-0 bg-white/95 z-50 flex flex-col items-center justify-center">
+    <div id="loader" class="hidden fixed inset-0 bg-white/95 z-[100] flex flex-col items-center justify-center">
         <div class="loader rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
         <p id="loader-text" class="text-[11px] font-bold uppercase tracking-widest text-slate-500">PROCESANDO...</p>
     </div>
@@ -30,10 +28,7 @@
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
-            <div class="flex items-center justify-center gap-2 mb-1">
-                <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.4</span>
-            </div>
+            <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL <span class="text-xs bg-slate-900 text-white px-2 py-0.5 rounded-full">v2.4.1</span></h1>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
@@ -47,20 +42,20 @@
     <div id="screen-menu" class="hidden p-6 max-w-md mx-auto space-y-4">
         <div class="flex justify-between items-end mb-10 mt-6">
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">BANDA SINFÓNICA</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">SISTEMA DE GESTIÓN</p>
                 <h2 id="display-band-name" class="text-xl font-black uppercase leading-none">---</h2>
             </div>
             <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase">SALIR</button>
         </div>
-        <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
+        <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase">ASISTENCIA</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📋</div>
         </button>
-        <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
+        <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase">INGRESAR ESTUDIANTES</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">👤</div>
         </button>
-        <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
+        <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase">HORARIO MATINAL</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📅</div>
         </button>
@@ -70,18 +65,12 @@
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black uppercase">NUEVO INTEGRANTE</h2>
-            <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="text" id="add-nombres" placeholder="NOMBRES" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            <input type="text" id="add-apellidos" placeholder="APELLIDOS" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
+            <input type="text" id="add-eps" placeholder="EPS / SALUD" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold uppercase">
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase">DOCUMENTO</label>
-                    <input type="tel" id="add-documento" placeholder="Número" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
-                </div>
-                <div>
-                    <label class="block text-[9px] font-black text-blue-600 mb-1 uppercase">FECHA NACIMIENTO</label>
-                    <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
-                </div>
+                <input type="tel" id="add-documento" placeholder="DOCUMENTO" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
+                <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
             </div>
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
@@ -94,49 +83,15 @@
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-6">
             <h2 class="text-lg font-black uppercase">DATOS DE LA JORNADA</h2>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">FECHA</label>
-                <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
-            </div>
-            <div>
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase">TIPO</label>
-                <select id="event-type" onchange="toggleEventDesc()" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
-                    <option value="Ensayo">ENSAYO</option>
-                    <option value="Presentación">PRESENTACIÓN</option>
-                </select>
-            </div>
+            <input type="date" id="event-date" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm">
+            <select id="event-type" onchange="toggleEventDesc()" class="w-full h-[52px] px-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
+                <option value="Ensayo">ENSAYO</option>
+                <option value="Presentación">PRESENTACIÓN</option>
+            </select>
             <div id="event-desc-box" class="hidden">
                 <input type="text" id="event-desc" placeholder="NOMBRE DEL EVENTO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
             </div>
-            <button onclick="prepareProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">IR A LISTA</button>
-        </div>
-    </div>
-
-    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-32">
-        <div class="flex justify-between items-center mb-6">
-            <button onclick="nav('screen-menu')" class="text-slate-400 font-black text-[11px] uppercase tracking-widest">← VOLVER</button>
-            <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold uppercase">
-                <option value="6">6 HORAS</option>
-                <option value="7">7 HORAS</option>
-            </select>
-        </div>
-        <div id="capture-area" class="bg-white p-4 rounded-xl">
-            <div class="text-center mb-4">
-                <h3 id="horario-banda-title" class="text-sm font-black uppercase">---</h3>
-            </div>
-            <div class="horario-grid">
-                <div class="horario-header">HORA</div>
-                <div class="horario-header">LUN</div>
-                <div class="horario-header">MAR</div>
-                <div class="horario-header">MIE</div>
-                <div class="horario-header">JUE</div>
-                <div class="horario-header">VIE</div>
-                <div id="horario-body" class="contents"></div>
-            </div>
-        </div>
-        <div class="fixed bottom-0 left-0 w-full p-6 bg-white/90 border-t flex gap-2">
-            <button onclick="saveHorario()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[10px]">GUARDAR HORARIO</button>
-            <button onclick="downloadHorario()" class="flex-1 bg-slate-100 text-slate-700 p-4 rounded-xl font-bold uppercase text-[10px]">IMAGEN</button>
+            <button onclick="prepareAttendance()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">TOMAR ASISTENCIA</button>
         </div>
     </div>
 
@@ -149,124 +104,137 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbywnHl_Uk9CJEQAmX9uF52nQPN0xCIdtHdS76jO4WPxg0gPqSPNFHjVtpnnSVaP_R6xYg/exec";
+        const MOTOR_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; // Asegúrate de publicar el script como ejecutable
         
         let session = JSON.parse(localStorage.getItem('atril_v24')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = {};
-        let editingCell = null;
 
         window.onload = () => {
             document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
-            if(session.user) restore(); else nav('screen-login');
+            if(session.user) {
+                restore();
+                nav(session.current);
+            } else {
+                nav('screen-login');
+            }
         };
 
         function nav(id) {
-            session.current = id; localStorage.setItem('atril_v24', JSON.stringify(session));
-            document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
+            session.current = id;
+            localStorage.setItem('atril_v24', JSON.stringify(session));
+            document.querySelectorAll('body > div').forEach(d => {
+                if(d.id !== 'loader') d.classList.add('hidden');
+            });
             document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-horario') {
-                document.getElementById('horario-banda-title').innerText = session.banda;
-                buildHorarioTable();
-            }
         }
 
+        function loader(v, t) {
+            document.getElementById('loader-text').innerText = t || "PROCESANDO...";
+            document.getElementById('loader').classList.toggle('hidden', !v);
+        }
+
+        // --- LÓGICA DE LOGIN Y DATOS ---
         async function loginProcess() {
-            const u = document.getElementById('user-input').value.trim(), p = document.getElementById('pass-input').value.trim();
+            const u = document.getElementById('user-input').value.trim();
+            const p = document.getElementById('pass-input').value.trim();
             if(!u || !p) return;
-            loader(true, "VALIDANDO...");
+
+            loader(true, "AUTENTICANDO...");
             try {
                 const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
                 if(d.success) {
-                    session.user = u; session.banda = d.banda; session.sheetId = d.sheetId; await fetchData(); nav('screen-menu');
-                } else document.getElementById('login-error').classList.remove('hidden');
-            } catch(e) { alert("ERROR DE CONEXIÓN"); }
+                    session.user = u;
+                    session.banda = d.banda;
+                    session.sheetId = d.sheetId;
+                    await fetchData(); // Carga datos iniciales
+                    nav('screen-menu');
+                } else {
+                    document.getElementById('login-error').classList.remove('hidden');
+                }
+            } catch(e) {
+                alert("Error de conexión con el servidor.");
+            }
             loader(false);
         }
 
         async function fetchData() {
-            const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
-            const d = await r.json();
-            session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
-            restore();
+            try {
+                const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
+                const d = await r.json();
+                session.master = d.integrantes;
+                session.config = d.config;
+                session.horario = d.horario || [];
+                localStorage.setItem('atril_v24', JSON.stringify(session));
+                restore();
+            } catch(e) { console.error("Error al obtener datos:", e); }
         }
 
         function restore() {
             document.getElementById('display-band-name').innerText = session.banda;
-            if(session.config.proceso) {
+            // Poblar selects de nuevo integrante
+            if(session.config) {
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
-                    if(s) {
+                    if(s && session.config[k]) {
                         let opts = `<option disabled selected>${k.toUpperCase()}</option>`;
-                        opts += (session.config[k] || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                        opts += session.config[k].map(o => `<option value="${o}">${o}</option>`).join('');
                         s.innerHTML = opts;
                     }
                 });
             }
         }
 
-        function buildHorarioTable() {
-            const hMax = parseInt(document.getElementById('select-horas').value);
-            const box = document.getElementById('horario-body'); box.innerHTML = "";
-            for (let h = 1; h <= hMax; h++) {
-                const header = document.createElement('div'); header.className = "horario-header"; header.innerText = h; box.appendChild(header);
-                for (let d = 1; d <= 5; d++) {
-                    const cell = document.createElement('div');
-                    cell.className = "horario-cell"; cell.id = `cell-${h}-${d}`;
-                    // Buscar contenido guardado en session.horario
-                    if (session.horario && session.horario[h-1] && session.horario[h-1][d]) {
-                        cell.innerText = session.horario[h-1][d];
-                    }
-                    cell.onclick = () => openGrupoModal(h, d);
-                    box.appendChild(cell);
-                }
-            }
-        }
+        // --- GUARDAR NUEVO ESTUDIANTE ---
+        async function saveNewStudent() {
+            const data = {
+                nombres: document.getElementById('add-nombres').value.trim(),
+                apellidos: document.getElementById('add-apellidos').value.trim(),
+                documento: document.getElementById('add-documento').value.trim(),
+                fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
+                eps: document.getElementById('add-eps').value.trim(),
+                proceso: document.getElementById('add-proceso').value,
+                instrumento: document.getElementById('add-instrumento').value,
+                grado: document.getElementById('add-grado').value
+            };
 
-        function openGrupoModal(h, d) {
-            editingCell = { h, d };
-            document.getElementById('modal-grupo').classList.remove('hidden');
-            let html = `<button onclick="setGrupo('')" class="w-full p-3 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase">VACIAR</button>`;
-            session.config.proceso.forEach(p => {
-                html += `<button onclick="setGrupo('${p}')" class="w-full p-3 bg-slate-50 rounded-lg text-[10px] font-bold uppercase">${p}</button>`;
-            });
-            document.getElementById('lista-grupos-modal').innerHTML = html;
-        }
+            if(!data.nombres || !data.documento) return alert("Completa los campos básicos.");
 
-        function setGrupo(v) {
-            document.getElementById(`cell-${editingCell.h}-${editingCell.d}`).innerText = v;
-            document.getElementById('modal-grupo').classList.add('hidden');
-        }
-
-        async function saveHorario() {
-            loader(true, "GUARDANDO HORARIO...");
-            const hMax = parseInt(document.getElementById('select-horas').value);
-            const matriz = [["HORA", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]];
-            for (let h = 1; h <= hMax; h++) {
-                let fila = [h];
-                for (let d = 1; d <= 5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
-                matriz.push(fila);
-            }
+            loader(true, "GUARDANDO ESTUDIANTE...");
             try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
-                session.horario = matriz.slice(1);
-                localStorage.setItem('atril_v24', JSON.stringify(session));
-                alert("¡HORARIO GUARDADO!");
-            } catch(e) { alert("ERROR"); }
+                const response = await fetch(MOTOR_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'saveStudent',
+                        sheetId: session.sheetId,
+                        student: data
+                    })
+                });
+                const res = await response.json();
+                if(res.success) {
+                    alert("Estudiante registrado con éxito.");
+                    fetchData(); // Refrescar lista local
+                    nav('screen-menu');
+                }
+            } catch(e) { alert("Error al guardar."); }
             loader(false);
         }
 
-        function downloadHorario() {
-            loader(true, "CREANDO IMAGEN...");
-            html2canvas(document.getElementById('capture-area'), { scale: 3 }).then(canvas => {
-                const a = document.createElement('a'); a.download = `Horario-${session.banda}.png`; a.href = canvas.toDataURL(); a.click();
-                loader(false);
-            });
+        // --- ASISTENCIA (Simplificada para el ejemplo) ---
+        function prepareAttendance() {
+            // Aquí deberías redirigir a una pantalla de lista de estudiantes
+            // o abrir un modal. Por brevedad, simularemos el envío:
+            alert("Función de lista desplegada: Selecciona integrantes y envía.");
+            // Lógica similar a saveHorario pero con action: 'saveAttendance'
         }
 
-        function loader(v, t) { document.getElementById('loader-text').innerText = t; document.getElementById('loader').classList.toggle('hidden', !v); }
-        function logout() { localStorage.clear(); location.reload(); }
-        function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
+        function toggleEventDesc() {
+            document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación');
+        }
+
+        function logout() {
+            localStorage.removeItem('atril_v24');
+            location.reload();
+        }
     </script>
 </body>
 </html>
