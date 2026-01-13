@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v1.3</title>
+    <title>ATRIL DIGITAL v1.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; color: #1e293b; }
@@ -15,9 +16,11 @@
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; }
-        .horario-cell { min-height: 60px; padding: 4px; background: white; border: 1px solid #f1f5f9; font-size: 9px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; }
+        
+        /* Grilla Horario v1.4 */
+        .horario-grid { display: grid; grid-template-columns: 50px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
+        .horario-cell { min-height: 65px; padding: 4px; background: white; font-size: 9px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; }
+        .horario-header { background: #0f172a; color: white; padding: 10px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
@@ -33,7 +36,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v1.3</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v1.4</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -54,16 +57,16 @@
             <button onclick="logout()" class="border-2 border-red-500 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Salir</button>
         </div>
         <button onclick="nav('screen-activity')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase">Asistencia</span>
-            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">📋</div>
+            <span class="font-black text-sm uppercase text-slate-700">Asistencia</span>
+            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📋</div>
         </button>
         <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase">Ingresar Estudiantes</span>
-            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">👤</div>
+            <span class="font-black text-sm uppercase text-slate-700">Ingresar Estudiantes</span>
+            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">👤</div>
         </button>
         <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center text-left">
-            <span class="font-black text-sm uppercase">Horario Matinal</span>
-            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">📅</div>
+            <span class="font-black text-sm uppercase text-slate-700">Horario Matinal</span>
+            <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📅</div>
         </button>
     </div>
 
@@ -91,33 +94,40 @@
         </div>
     </div>
 
-    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-24">
+    <div id="screen-horario" class="hidden p-4 max-w-xl mx-auto pb-32">
         <div class="flex justify-between items-center mb-6">
             <button onclick="nav('screen-menu')" class="text-slate-400 font-black text-[11px] uppercase tracking-widest">← Volver</button>
             <select id="select-horas" onchange="buildHorarioTable()" class="bg-white border p-2 rounded-lg text-[10px] font-bold uppercase">
-                <option value="6">6 HORAS</option>
-                <option value="7">7 HORAS</option>
+                <option value="6">6 Horas</option>
+                <option value="7">7 Horas</option>
             </select>
         </div>
-        <div id="capture-area" class="bg-slate-100 p-1 rounded-lg overflow-hidden">
-            <div class="horario-grid">
-                <div class="horario-header">H</div>
-                <div class="horario-header">LU</div>
-                <div class="horario-header">MA</div>
-                <div class="horario-header">MI</div>
-                <div class="horario-header">JU</div>
-                <div class="horario-header">VI</div>
+
+        <div id="capture-area" class="bg-white p-4 rounded-xl">
+            <div class="text-center mb-4">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Horario Matinal</p>
+                <h3 id="horario-banda-title" class="text-sm font-black uppercase">BANDA</h3>
             </div>
-            <div id="horario-body" class="horario-grid"></div>
+            <div class="horario-grid">
+                <div class="horario-header">hora</div>
+                <div class="horario-header">lunes</div>
+                <div class="horario-header">martes</div>
+                <div class="horario-header">miercoles</div>
+                <div class="horario-header">jueves</div>
+                <div class="horario-header">viernes</div>
+                <div id="horario-body" class="contents"></div>
+            </div>
         </div>
+
         <div class="fixed bottom-0 left-0 w-full p-6 bg-white/90 border-t flex gap-2">
-            <button onclick="saveHorario()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">Guardar Horario</button>
+            <button onclick="saveHorario()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[10px]">Guardar Horario</button>
+            <button onclick="downloadHorario()" class="flex-1 bg-slate-100 text-slate-700 p-4 rounded-xl font-bold uppercase text-[10px]">Imagen</button>
         </div>
     </div>
 
     <div id="modal-grupo" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
         <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl">
-            <h3 class="font-black uppercase text-sm mb-4">Seleccionar Grupo</h3>
+            <h3 class="font-black uppercase text-sm mb-4">Asignar Proceso</h3>
             <div id="lista-grupos-modal" class="space-y-2 max-h-60 overflow-y-auto pr-2 no-scrollbar"></div>
             <button onclick="document.getElementById('modal-grupo').classList.add('hidden')" class="w-full mt-6 bg-slate-100 p-3 rounded-xl font-bold text-xs uppercase">Cancelar</button>
         </div>
@@ -174,7 +184,7 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbyfKCs4cKs7RU5ihFxFuYi2RTgqzj-MGTuZ7z8VTbQU5GKV8H8YqmCJScm8lclUperAvg/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbyXoY9J_e5OIiSM0HDBjsKO3-H2vrEt5mFhczAiMGSNP0a6QOXqfIQgGLa9UOnvLt_czA/exec";
         
         let session = JSON.parse(localStorage.getItem('atril_v5')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
         let record = JSON.parse(localStorage.getItem('atril_rec_v5')) || {};
@@ -204,12 +214,13 @@
         function nav(id) {
             session.current = id; 
             localStorage.setItem('atril_v5', JSON.stringify(session));
-            document.querySelectorAll('body > div').forEach(d => {
-                if(d.id !== 'loader') d.classList.add('hidden');
-            });
+            document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             const target = document.getElementById(id);
             if(target) target.classList.remove('hidden');
-            if(id === 'screen-horario') buildHorarioTable();
+            if(id === 'screen-horario') {
+                document.getElementById('horario-banda-title').innerText = session.banda;
+                buildHorarioTable();
+            }
         }
 
         async function loginProcess() {
@@ -229,14 +240,15 @@
         async function fetchData() {
             const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
             const d = await r.json();
-            session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
+            session.master = d.integrantes; session.config = d.config; 
+            session.horario = d.horario || [];
             restore();
         }
 
         function restore() {
             document.getElementById('display-band-name').innerText = session.banda;
             if(session.config.proceso) {
-                document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs">${p}</button>`).join('');
+                document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-bold text-left uppercase text-xs text-slate-700">${p}</button>`).join('');
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s) {
@@ -249,51 +261,6 @@
             nav(session.current);
         }
 
-        function prepareProcess() {
-            session.date = document.getElementById('event-date').value;
-            session.type = document.getElementById('event-type').value;
-            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
-            if(!session.act && session.type !== 'Ensayo') return alert("Indica nombre del evento");
-            nav('screen-process');
-        }
-
-        function initAt(p) {
-            session.process = p; 
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
-            nav('screen-list');
-            renderList('TODOS');
-        }
-
-        function renderList(secc) {
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
-            const currentTab = document.getElementById(`tab-${secc}`);
-            if(currentTab) currentTab.classList.add('active-tab');
-            
-            const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            let filtered = session.master
-                .filter(m => String(m.proceso) === String(session.process))
-                .sort((a, b) => ORDEN_INST.indexOf(a.instrumento.toLowerCase()) - ORDEN_INST.indexOf(b.instrumento.toLowerCase()));
-
-            if (secc !== 'TODOS') {
-                filtered = filtered.filter(m => {
-                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
-                    return miFamilia === secc;
-                });
-            }
-
-            filtered.forEach(m => {
-                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
-                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">${m.instrumento} • ${m.grado}</p></div>
-                <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
-                </div>`;
-                box.appendChild(card);
-            });
-            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
-        }
-
         function buildHorarioTable() {
             const numHoras = parseInt(document.getElementById('select-horas').value);
             const box = document.getElementById('horario-body'); box.innerHTML = "";
@@ -303,7 +270,10 @@
                 for (let d = 1; d <= 5; d++) {
                     const cell = document.createElement('div');
                     cell.className = "horario-cell"; cell.id = `cell-${h}-${d}`;
-                    if (session.horario[h] && session.horario[h][d]) cell.innerText = session.horario[h][d];
+                    // Buscar datos guardados (matriz empieza en 0 para hora 1)
+                    if (session.horario[h-1] && session.horario[h-1][d]) {
+                        cell.innerText = session.horario[h-1][d];
+                    }
                     cell.onclick = () => openGrupoModal(h, d);
                     box.appendChild(cell);
                 }
@@ -329,9 +299,9 @@
         }
 
         async function saveHorario() {
-            loader(true, "Guardando...");
+            loader(true, "Sincronizando...");
             const numHoras = parseInt(document.getElementById('select-horas').value);
-            const matriz = [["HORA", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]];
+            const matriz = [["hora", "lunes", "martes", "miercoles", "jueves", "viernes"]];
             for (let h = 1; h <= numHoras; h++) {
                 let fila = [h];
                 for (let d = 1; d <= 5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
@@ -339,10 +309,68 @@
             }
             try {
                 await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
-                session.horario = matriz; localStorage.setItem('atril_v5', JSON.stringify(session));
+                session.horario = matriz.slice(1); 
+                localStorage.setItem('atril_v5', JSON.stringify(session));
                 alert("HORARIO ACTUALIZADO CON ÉXITO");
             } catch(e) { alert("Error al guardar"); }
             loader(false);
+        }
+
+        function downloadHorario() {
+            const area = document.getElementById('capture-area');
+            loader(true, "Generando Imagen...");
+            html2canvas(area, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Horario-${session.banda}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                loader(false);
+            });
+        }
+
+        // --- ASISTENCIA LOGIC ---
+        function prepareProcess() {
+            session.date = document.getElementById('event-date').value;
+            session.type = document.getElementById('event-type').value;
+            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
+            if(!session.act && session.type !== 'Ensayo') return alert("Indica nombre del evento");
+            nav('screen-process');
+        }
+
+        function initAt(p) {
+            session.process = p; 
+            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
+            nav('screen-list');
+            renderList('TODOS');
+        }
+
+        function renderList(secc) {
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
+            const currentTab = document.getElementById(`tab-${secc}`);
+            if(currentTab) currentTab.classList.add('active-tab');
+            const box = document.getElementById('musicos-box'); box.innerHTML = "";
+            let filtered = session.master
+                .filter(m => String(m.proceso) === String(session.process))
+                .sort((a, b) => ORDEN_INST.indexOf(a.instrumento.toLowerCase()) - ORDEN_INST.indexOf(b.instrumento.toLowerCase()));
+
+            if (secc !== 'TODOS') {
+                filtered = filtered.filter(m => {
+                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
+                    return miFamilia === secc;
+                });
+            }
+
+            filtered.forEach(m => {
+                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl shadow-sm border musico-card";
+                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase leading-none">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-widest">${m.instrumento} • ${m.grado}</p></div>
+                <div class="grid grid-cols-4 gap-1">
+                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
+                </div>`;
+                box.appendChild(card);
+            });
+            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
         function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v5', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
