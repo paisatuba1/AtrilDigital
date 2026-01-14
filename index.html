@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v2.6</title>
+    <title>ATRIL DIGITAL v2.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -16,6 +16,8 @@
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* Forzar que el input date tenga el mismo comportamiento visual que el text */
+        input[type="date"] { min-height: 46px; }
     </style>
 </head>
 <body>
@@ -28,7 +30,7 @@
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-sm text-center border border-slate-100">
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
-            <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL <span class="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full">v2.6</span></h1>
+            <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL <span class="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full">v2.7</span></h1>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
                 <input type="text" id="user-input" placeholder="USUARIO" class="w-full p-4 bg-slate-50 rounded-xl font-bold text-sm uppercase">
@@ -68,16 +70,18 @@
             <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-tighter">DOCUMENTO</label>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-slate-400 mb-1 uppercase">DOCUMENTO</label>
                     <input type="tel" id="add-documento" placeholder="Número" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
-                <div>
-                    <label class="block text-[9px] font-black text-slate-400 mb-1 uppercase tracking-tighter">FECHA NACIMIENTO</label>
+                <div class="flex flex-col">
+                    <label class="text-[9px] font-black text-slate-400 mb-1 uppercase">FECHA NACIMIENTO</label>
                     <input type="date" id="add-fecha_nacimiento" class="w-full p-3 bg-slate-50 rounded-lg text-sm font-bold">
                 </div>
             </div>
+
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
@@ -150,7 +154,7 @@
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             
-            // Cambio 1: Fecha por defecto al entrar a la sección de jornada
+            // Fecha del día actual por defecto
             if(id === 'screen-activity') {
                 document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
             }
@@ -207,7 +211,6 @@
             nav(session.current);
         }
 
-        // --- ASISTENCIA ---
         function prepareProcess() {
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
