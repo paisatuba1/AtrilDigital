@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.0</title>
+    <title>ATRIL DIGITAL v3.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -17,12 +17,12 @@
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Ajustes visuales específicos */
+        /* Ajustes visuales */
         .horario-grid { display: grid; grid-template-columns: 40px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
         .horario-cell { min-height: 60px; padding: 2px; background: white; font-size: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; word-break: break-word; }
         .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         
-        /* Simetría forzada para inputs de fecha y texto */
+        /* Simetría exacta */
         .input-simetrico { height: 48px; width: 100%; padding: 12px; background-color: #f8fafc; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 700; }
     </style>
 </head>
@@ -30,7 +30,7 @@
 
     <div id="loader" class="hidden fixed inset-0 bg-white/95 z-[100] flex flex-col items-center justify-center text-center">
         <div class="loader rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
-        <p id="loader-text" class="text-[11px] font-black uppercase tracking-widest text-slate-500">PROCESANDO...</p>
+        <p id="loader-text" class="text-[11px] font-black uppercase tracking-widest text-slate-500">CONECTANDO...</p>
     </div>
 
     <div id="screen-login" class="flex items-center justify-center min-h-screen p-4">
@@ -38,7 +38,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.0</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.1</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -46,7 +46,7 @@
                 <input type="password" id="pass-input" placeholder="CONTRASEÑA" class="w-full p-4 bg-slate-50 rounded-xl text-2xl tracking-widest text-center">
                 <button onclick="loginProcess()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-sm active:scale-95 transition-transform">INGRESAR</button>
             </div>
-            <p id="login-error" class="text-red-600 text-[11px] mt-6 hidden font-bold uppercase">DATOS INCORRECTOS</p>
+            <p id="login-error" class="text-red-600 text-[11px] mt-6 hidden font-bold uppercase">USUARIO O CLAVE INCORRECTOS</p>
         </div>
     </div>
 
@@ -168,10 +168,10 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbx5VCPeivmYhYstko0Gt7QPybxGbGfO94j_Db0NTBk84aD1gLS91Y5kL4hJTlwUA3eoJQ/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzbcLExwaHto3DQQAQtUg3lZEh8lfgPUcA-zqjni8qs7UGTaINFNogsnomYqxEwf7_Ucg/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v30')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v30')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v31')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v31')) || {};
         let editingCell = null;
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 
@@ -187,7 +187,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v30', JSON.stringify(session));
+            localStorage.setItem('atril_v31', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
@@ -210,7 +210,7 @@
                     session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
                     await fetchData();
                 } else { document.getElementById('login-error').classList.remove('hidden'); loader(false); }
-            } catch(e) { alert("Error de red: " + e); loader(false); }
+            } catch(e) { alert("Error de conexión: " + e.message); loader(false); }
         }
 
         async function fetchData() {
@@ -223,13 +223,13 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v30', JSON.stringify(session));
+                    localStorage.setItem('atril_v31', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else {
                     alert("Error cargando datos: " + (d.error || 'Desconocido'));
                 }
-            } catch(e) { console.error(e); alert("Error de conexión"); }
+            } catch(e) { console.error(e); alert("Error de red al sincronizar"); }
             loader(false);
         }
 
@@ -237,9 +237,11 @@
             if(!session.config) return; 
             document.getElementById('display-band-name').innerText = session.banda || "---";
             
+            // Poblar botones de procesos
             if(session.config.proceso && session.config.proceso.length > 0) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-black text-left uppercase text-xs text-slate-700">${p}</button>`).join('');
                 
+                // Poblar selects de registro
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s && session.config[k]) {
@@ -304,7 +306,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v30', JSON.stringify(session));
+                    localStorage.setItem('atril_v31', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -358,7 +360,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v30', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v31', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -368,7 +370,7 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v30'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v31'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
