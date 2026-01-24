@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v2.9</title>
+    <title>ATRIL DIGITAL v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -38,7 +38,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v2.9</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.0</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -168,10 +168,10 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwtpQSX96rRGY5AM8cKkbSxLQS3j1It6YlQrcUwOtqAcJBQmpTinoE_ksGB4E5D2mLOhw/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbx5VCPeivmYhYstko0Gt7QPybxGbGfO94j_Db0NTBk84aD1gLS91Y5kL4hJTlwUA3eoJQ/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v29')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v29')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v30')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v30')) || {};
         let editingCell = null;
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 
@@ -187,7 +187,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v29', JSON.stringify(session));
+            localStorage.setItem('atril_v30', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
@@ -209,9 +209,8 @@
                 if(d.success) {
                     session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
                     await fetchData();
-                    nav('screen-menu');
                 } else { document.getElementById('login-error').classList.remove('hidden'); loader(false); }
-            } catch(e) { alert("Error de red"); loader(false); }
+            } catch(e) { alert("Error de red: " + e); loader(false); }
         }
 
         async function fetchData() {
@@ -219,27 +218,37 @@
             try {
                 const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
                 const d = await r.json();
-                session.master = d.integrantes; session.config = d.config; session.horario = d.horario || [];
-                localStorage.setItem('atril_v29', JSON.stringify(session));
-                restore();
-            } catch(e) { console.error(e); }
+                
+                if (d.success) {
+                    session.master = d.integrantes || [];
+                    session.config = d.config || {};
+                    session.horario = d.horario || [];
+                    localStorage.setItem('atril_v30', JSON.stringify(session));
+                    restore();
+                    nav('screen-menu');
+                } else {
+                    alert("Error cargando datos: " + (d.error || 'Desconocido'));
+                }
+            } catch(e) { console.error(e); alert("Error de conexión"); }
             loader(false);
         }
 
         function restore() {
-            document.getElementById('display-band-name').innerText = session.banda;
-            if(session.config.proceso) {
+            if(!session.config) return; 
+            document.getElementById('display-band-name').innerText = session.banda || "---";
+            
+            if(session.config.proceso && session.config.proceso.length > 0) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-black text-left uppercase text-xs text-slate-700">${p}</button>`).join('');
+                
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
-                    if(s) {
+                    if(s && session.config[k]) {
                         let opts = `<option disabled selected>${k.toUpperCase()}</option>`;
-                        opts += (session.config[k] || []).map(o => `<option value="${o}">${o}</option>`).join('');
+                        opts += session.config[k].map(o => `<option value="${o}">${o}</option>`).join('');
                         s.innerHTML = opts;
                     }
                 });
             }
-            nav(session.current);
         }
 
         // --- HORARIO ---
@@ -251,9 +260,7 @@
                 for(let d=0; d<5; d++) {
                     const cell = document.createElement('div'); cell.className="horario-cell";
                     cell.id = `cell-${h}-${d}`;
-                    // Mapeo seguro: session.horario[h-1] es el objeto de la fila
                     if(session.horario[h-1]) {
-                        // Accedemos usando la llave del día (lunes, martes...)
                         let diaKey = DIAS_KEYS[d];
                         if(session.horario[h-1][diaKey]) cell.innerText = session.horario[h-1][diaKey];
                     }
@@ -264,6 +271,7 @@
         }
 
         function openGradoModal() {
+            if (!session.config.grado || session.config.grado.length === 0) return alert("No hay grados configurados");
             document.getElementById('modal-grupo').classList.remove('hidden');
             let html = `<button onclick="setGrado('')" class="w-full p-3 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase">ELIMINAR</button>`;
             session.config.grado.forEach(g => {
@@ -278,8 +286,8 @@
         }
 
         async function saveHorario() {
-            loader(true, "GUARDANDO HORARIO...");
-            const matriz = [["hora","lunes","martes","miercoles","jueves","viernes"]];
+            loader(true, "GUARDANDO...");
+            const matriz = []; 
             const numHoras = parseInt(document.getElementById('select-horas').value);
             for(let h=1; h<=numHoras; h++) {
                 let fila = [h];
@@ -287,17 +295,19 @@
                 matriz.push(fila);
             }
             try {
-                await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
-                // Actualizar localmente convirtiendo la matriz a objetos para que al repintar funcione
-                let newHorario = [];
-                for(let i=1; i<matriz.length; i++) {
-                    let row = matriz[i];
-                    newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
+                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
+                const res = await r.json();
+                if(res.success) {
+                    let newHorario = [];
+                    for(let i=0; i<matriz.length; i++) {
+                         let row = matriz[i];
+                         newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
+                    }
+                    session.horario = newHorario;
+                    localStorage.setItem('atril_v30', JSON.stringify(session));
+                    alert("HORARIO GUARDADO");
                 }
-                session.horario = newHorario;
-                localStorage.setItem('atril_v29', JSON.stringify(session));
-                alert("HORARIO SINCRONIZADO CON ÉXITO");
-            } catch(e) { alert("ERROR AL GUARDAR"); }
+            } catch(e) { alert("Error al guardar"); }
             loader(false);
         }
 
@@ -307,6 +317,7 @@
             session.type = document.getElementById('event-type').value;
             session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
             if(!session.date || !session.act) return alert("FALTAN DATOS");
+            if(!session.config.proceso || session.config.proceso.length === 0) return alert("Error: No se cargaron los procesos. Reinicia sesión.");
             nav('screen-process');
         }
 
@@ -321,12 +332,15 @@
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
+            
+            if(!session.master) return;
+
             let filtered = session.master.filter(m => String(m.proceso) === String(session.process))
-            .sort((a, b) => ORDEN_INST.indexOf(a.instrumento.toLowerCase()) - ORDEN_INST.indexOf(b.instrumento.toLowerCase()));
+            .sort((a, b) => ORDEN_INST.indexOf(String(a.instrumento).toLowerCase()) - ORDEN_INST.indexOf(String(b.instrumento).toLowerCase()));
 
             if (secc !== 'TODOS') {
                 filtered = filtered.filter(m => {
-                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(m.instrumento.toLowerCase()));
+                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase()));
                     return miFamilia === secc;
                 });
             }
@@ -344,17 +358,17 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v29', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v30', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
             if(!Object.keys(record).length) return alert("NO HAY MARCACIONES");
-            loader(true, "GUARDANDO EN BASE DE DATOS...");
+            loader(true, "GUARDANDO...");
             const data = Object.entries(record).map(([n, e]) => ({ fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e }));
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡ASISTENCIA GUARDADA!"); record = {}; localStorage.removeItem('atril_rec_v29'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v30'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
@@ -366,12 +380,12 @@
                 proceso: document.getElementById('add-proceso').value, instrumento: document.getElementById('add-instrumento').value, 
                 grado: document.getElementById('add-grado').value, eps: document.getElementById('add-eps').value
             };
-            if(!d.nombres || !d.documento) return alert("DATOS OBLIGATORIOS FALTANTES");
-            loader(true, "CREANDO REGISTRO...");
+            if(!d.nombres || !d.documento) return alert("FALTAN DATOS");
+            loader(true, "GUARDANDO...");
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
                 const res = await r.json();
-                if(res.success) { alert("ESTUDIANTE REGISTRADO"); document.querySelectorAll('#screen-add-student input').forEach(i => i.value = ""); await fetchData(); nav('screen-menu'); }
+                if(res.success) { alert("REGISTRADO"); document.querySelectorAll('#screen-add-student input').forEach(i => i.value = ""); await fetchData(); nav('screen-menu'); }
             } catch(e) { alert("ERROR AL GUARDAR"); }
             loader(false);
         }
