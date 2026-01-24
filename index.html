@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.1</title>
+    <title>ATRIL DIGITAL v3.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -38,7 +38,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.1</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.2</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -168,10 +168,10 @@
     </div>
 
     <script>
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzbcLExwaHto3DQQAQtUg3lZEh8lfgPUcA-zqjni8qs7UGTaINFNogsnomYqxEwf7_Ucg/exec";
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbwlOh0mTMD3JYAZ2TzoC3-RvG2YrB7VG-CfBidtc6-uBTKR_x3qm5E1UdPdRlOKYRGqvQ/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v31')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v31')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v32')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v32')) || {};
         let editingCell = null;
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 
@@ -181,219 +181,4 @@
             "Cuerdas": ["cello", "contrabajo", "violin", "viola"],
             "Percusion": ["percusion"]
         };
-        const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
-
-        window.onload = () => { if(session.user) restore(); else nav('screen-login'); };
-
-        function nav(id) {
-            session.current = id;
-            localStorage.setItem('atril_v31', JSON.stringify(session));
-            document.querySelectorAll('body > div').forEach(d => d.id !== 'loader' && d.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
-            if(id === 'screen-horario') buildHorarioTable();
-        }
-
-        function loader(v, t) {
-            document.getElementById('loader-text').innerText = t || "PROCESANDO...";
-            document.getElementById('loader').classList.toggle('hidden', !v);
-        }
-
-        async function loginProcess() {
-            const u = document.getElementById('user-input').value.trim(), p = document.getElementById('pass-input').value.trim();
-            if(!u || !p) return;
-            loader(true, "VERIFICANDO CREDENCIALES...");
-            try {
-                const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
-                const d = await r.json();
-                if(d.success) {
-                    session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
-                    await fetchData();
-                } else { document.getElementById('login-error').classList.remove('hidden'); loader(false); }
-            } catch(e) { alert("Error de conexión: " + e.message); loader(false); }
-        }
-
-        async function fetchData() {
-            loader(true, "SINCRONIZANDO...");
-            try {
-                const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
-                const d = await r.json();
-                
-                if (d.success) {
-                    session.master = d.integrantes || [];
-                    session.config = d.config || {};
-                    session.horario = d.horario || [];
-                    localStorage.setItem('atril_v31', JSON.stringify(session));
-                    restore();
-                    nav('screen-menu');
-                } else {
-                    alert("Error cargando datos: " + (d.error || 'Desconocido'));
-                }
-            } catch(e) { console.error(e); alert("Error de red al sincronizar"); }
-            loader(false);
-        }
-
-        function restore() {
-            if(!session.config) return; 
-            document.getElementById('display-band-name').innerText = session.banda || "---";
-            
-            // Poblar botones de procesos
-            if(session.config.proceso && session.config.proceso.length > 0) {
-                document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-black text-left uppercase text-xs text-slate-700">${p}</button>`).join('');
-                
-                // Poblar selects de registro
-                ['proceso','instrumento','grado'].forEach(k => {
-                    const s = document.getElementById(`add-${k}`);
-                    if(s && session.config[k]) {
-                        let opts = `<option disabled selected>${k.toUpperCase()}</option>`;
-                        opts += session.config[k].map(o => `<option value="${o}">${o}</option>`).join('');
-                        s.innerHTML = opts;
-                    }
-                });
-            }
-        }
-
-        // --- HORARIO ---
-        function buildHorarioTable() {
-            const hBox = document.getElementById('horario-body'); hBox.innerHTML = "";
-            const numHoras = parseInt(document.getElementById('select-horas').value);
-            for(let h=1; h<=numHoras; h++) {
-                const hc = document.createElement('div'); hc.className="horario-header"; hc.innerText=h; hBox.appendChild(hc);
-                for(let d=0; d<5; d++) {
-                    const cell = document.createElement('div'); cell.className="horario-cell";
-                    cell.id = `cell-${h}-${d}`;
-                    if(session.horario[h-1]) {
-                        let diaKey = DIAS_KEYS[d];
-                        if(session.horario[h-1][diaKey]) cell.innerText = session.horario[h-1][diaKey];
-                    }
-                    cell.onclick = () => { editingCell = {h,d}; openGradoModal(); };
-                    hBox.appendChild(cell);
-                }
-            }
-        }
-
-        function openGradoModal() {
-            if (!session.config.grado || session.config.grado.length === 0) return alert("No hay grados configurados");
-            document.getElementById('modal-grupo').classList.remove('hidden');
-            let html = `<button onclick="setGrado('')" class="w-full p-3 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase">ELIMINAR</button>`;
-            session.config.grado.forEach(g => {
-                html += `<button onclick="setGrado('${g}')" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-[10px] uppercase">${g}</button>`;
-            });
-            document.getElementById('lista-grados-modal').innerHTML = html;
-        }
-
-        function setGrado(v) {
-            document.getElementById(`cell-${editingCell.h}-${editingCell.d}`).innerText = v;
-            document.getElementById('modal-grupo').classList.add('hidden');
-        }
-
-        async function saveHorario() {
-            loader(true, "GUARDANDO...");
-            const matriz = []; 
-            const numHoras = parseInt(document.getElementById('select-horas').value);
-            for(let h=1; h<=numHoras; h++) {
-                let fila = [h];
-                for(let d=0; d<5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
-                matriz.push(fila);
-            }
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
-                const res = await r.json();
-                if(res.success) {
-                    let newHorario = [];
-                    for(let i=0; i<matriz.length; i++) {
-                         let row = matriz[i];
-                         newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
-                    }
-                    session.horario = newHorario;
-                    localStorage.setItem('atril_v31', JSON.stringify(session));
-                    alert("HORARIO GUARDADO");
-                }
-            } catch(e) { alert("Error al guardar"); }
-            loader(false);
-        }
-
-        // --- ASISTENCIA ---
-        function prepareProcess() {
-            session.date = document.getElementById('event-date').value;
-            session.type = document.getElementById('event-type').value;
-            session.act = (session.type === 'Ensayo' ? 'ENSAYO' : document.getElementById('event-desc').value).toUpperCase();
-            if(!session.date || !session.act) return alert("FALTAN DATOS");
-            if(!session.config.proceso || session.config.proceso.length === 0) return alert("Error: No se cargaron los procesos. Reinicia sesión.");
-            nav('screen-process');
-        }
-
-        function initAt(p) {
-            session.process = p; 
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
-            nav('screen-list');
-            renderList('TODOS');
-        }
-
-        function renderList(secc) {
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
-            document.getElementById(`tab-${secc}`).classList.add('active-tab');
-            const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            
-            if(!session.master) return;
-
-            let filtered = session.master.filter(m => String(m.proceso) === String(session.process))
-            .sort((a, b) => ORDEN_INST.indexOf(String(a.instrumento).toLowerCase()) - ORDEN_INST.indexOf(String(b.instrumento).toLowerCase()));
-
-            if (secc !== 'TODOS') {
-                filtered = filtered.filter(m => {
-                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase()));
-                    return miFamilia === secc;
-                });
-            }
-
-            filtered.forEach(m => {
-                const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border";
-                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase text-slate-800">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div>
-                <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
-                </div>`;
-                box.appendChild(card);
-            });
-            document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
-        }
-
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v31', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
-        function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
-
-        async function finalize() {
-            if(!Object.keys(record).length) return alert("NO HAY MARCACIONES");
-            loader(true, "GUARDANDO...");
-            const data = Object.entries(record).map(([n, e]) => ({ fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e }));
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
-                const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v31'); nav('screen-menu'); }
-            } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
-            loader(false);
-        }
-
-        async function saveNewStudent() {
-            const d = { 
-                nombres: document.getElementById('add-nombres').value, apellidos: document.getElementById('add-apellidos').value, 
-                documento: document.getElementById('add-documento').value, fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
-                proceso: document.getElementById('add-proceso').value, instrumento: document.getElementById('add-instrumento').value, 
-                grado: document.getElementById('add-grado').value, eps: document.getElementById('add-eps').value
-            };
-            if(!d.nombres || !d.documento) return alert("FALTAN DATOS");
-            loader(true, "GUARDANDO...");
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-                const res = await r.json();
-                if(res.success) { alert("REGISTRADO"); document.querySelectorAll('#screen-add-student input').forEach(i => i.value = ""); await fetchData(); nav('screen-menu'); }
-            } catch(e) { alert("ERROR AL GUARDAR"); }
-            loader(false);
-        }
-
-        function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
-        function logout() { localStorage.clear(); location.reload(); }
-    </script>
-</body>
-</html>
+        const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuer
