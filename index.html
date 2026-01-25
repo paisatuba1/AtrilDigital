@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.5</title>
+    <title>ATRIL DIGITAL v3.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -41,7 +41,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.5</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.6</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -82,7 +82,8 @@
             
             <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="tel" id="add-telefono" placeholder="Teléfono Estudiante" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold"> <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="tel" id="add-telefono" placeholder="Teléfono Estudiante" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             
             <div class="grid grid-cols-2 gap-2">
                 <div class="flex flex-col">
@@ -182,11 +183,12 @@
     </div>
 
     <script>
-        // URL v3.5
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzEmKtcjClRvoCjIvmvAeEUNmrruPR2bUWXu6iL4f8o9D9VG8JPyS8E1o-LbA7200NzPw/exec";
+        // URL v3.6 (Script con filtro de duplicados y registro actualizado)
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzx2YNHIJZKR2VOuVrZzGlk6a_H1u_6-4T2U4ZdbWO6N4SA4d5BWTWAARaq_lIRhBX21g/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v35')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v35')) || {};
+        // localStorage key actualizada a v36 para evitar cache viejo
+        let session = JSON.parse(localStorage.getItem('atril_v36')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v36')) || {};
         let editingCell = null;
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 
@@ -198,6 +200,7 @@
         };
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
 
+        // AUTO-SINCRONIZACIÓN
         window.onload = async () => { 
             if(session.user && session.sheetId) {
                 loader(true, "SINCRONIZANDO...");
@@ -209,7 +212,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v35', JSON.stringify(session));
+            localStorage.setItem('atril_v36', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -267,7 +270,7 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v35', JSON.stringify(session));
+                    localStorage.setItem('atril_v36', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else {
@@ -318,15 +321,15 @@
             const d = { 
                 nombres: document.getElementById('add-nombres').value, 
                 apellidos: document.getElementById('add-apellidos').value,
-                telefono: document.getElementById('add-telefono').value, // NUEVO
+                telefono: document.getElementById('add-telefono').value,
                 documento: document.getElementById('add-documento').value, 
                 fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
                 proceso: document.getElementById('add-proceso').value, 
                 instrumento: document.getElementById('add-instrumento').value, 
                 grado: document.getElementById('add-grado').value, 
                 eps: document.getElementById('add-eps').value,
-                acudiente: document.getElementById('add-acudiente-nombre').value, // NUEVO
-                telefono_acud: document.getElementById('add-acudiente-telefono').value // NUEVO
+                acudiente: document.getElementById('add-acudiente-nombre').value,
+                telefono_acud: document.getElementById('add-acudiente-telefono').value
             };
             
             if(!d.nombres || !d.documento) return alert("FALTAN DATOS OBLIGATORIOS");
@@ -336,10 +339,8 @@
                 const res = await r.json();
                 if(res.success) { 
                     alert("REGISTRADO CON ÉXITO"); 
-                    // Limpiar todo
                     document.querySelectorAll('#screen-add-student input').forEach(i => i.value = "");
                     document.getElementById('acudiente-box').classList.add('hidden');
-                    // Actualizar datos locales
                     await fetchData(); 
                     nav('screen-menu'); 
                 }
@@ -411,7 +412,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v35', JSON.stringify(session));
+                    localStorage.setItem('atril_v36', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -465,7 +466,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v35', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v36', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -475,7 +476,7 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v35'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v36'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
