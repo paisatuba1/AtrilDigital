@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.4</title>
+    <title>ATRIL DIGITAL v3.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .hidden { display: none !important; } /* Forzar oculto */
-        .flex { display: flex !important; } /* Forzar flex */
+        .hidden { display: none !important; }
+        .flex { display: flex !important; }
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
@@ -23,6 +23,10 @@
         .horario-cell { min-height: 60px; padding: 2px; background: white; font-size: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; word-break: break-word; }
         .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         .input-simetrico { height: 48px; width: 100%; padding: 12px; background-color: #f8fafc; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 700; }
+        
+        /* Transición suave para acudiente */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -37,7 +41,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.4</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.5</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -75,9 +79,10 @@
         <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
             <h2 class="text-lg font-black uppercase text-slate-900">NUEVO INTEGRANTE</h2>
+            
             <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
-            <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
+            <input type="tel" id="add-telefono" placeholder="Teléfono Estudiante" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold"> <input type="text" id="add-eps" placeholder="EPS / Salud" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             
             <div class="grid grid-cols-2 gap-2">
                 <div class="flex flex-col">
@@ -93,7 +98,17 @@
             <select id="add-proceso" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-instrumento" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
             <select id="add-grado" class="w-full p-3 bg-slate-50 rounded-lg text-[11px] font-bold uppercase"></select>
-            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs">GUARDAR REGISTRO</button>
+
+            <button onclick="toggleAcudiente()" class="w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-widest py-2 hover:text-slate-600 transition-colors mt-2">
+                + ¿AGREGAR ACUDIENTE?
+            </button>
+            <div id="acudiente-box" class="hidden space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 fade-in">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">DATOS DEL ACUDIENTE</p>
+                <input type="text" id="add-acudiente-nombre" placeholder="Nombre Acudiente" class="w-full p-3 bg-white rounded-lg text-sm font-bold">
+                <input type="tel" id="add-acudiente-telefono" placeholder="Teléfono Acudiente" class="w-full p-3 bg-white rounded-lg text-sm font-bold">
+            </div>
+
+            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs mt-2">GUARDAR REGISTRO</button>
         </div>
     </div>
 
@@ -167,12 +182,11 @@
     </div>
 
     <script>
-        // URL ACTUALIZADA
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbycRX8Rn5zZbOjg4owaBGA3FaP38J1e1kWVmMLIc-0q_0HUupKV5hBXR3q8tEz2cddxcg/exec";
+        // URL v3.5
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzEmKtcjClRvoCjIvmvAeEUNmrruPR2bUWXu6iL4f8o9D9VG8JPyS8E1o-LbA7200NzPw/exec";
         
-        // CAMBIAMOS KEY A v34 PARA EVITAR CONFLICTOS VIEJOS
-        let session = JSON.parse(localStorage.getItem('atril_v34')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v34')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v35')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v35')) || {};
         let editingCell = null;
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
 
@@ -184,10 +198,8 @@
         };
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
 
-        // AUTO-SINCRONIZACIÓN AL CARGAR
         window.onload = async () => { 
             if(session.user && session.sheetId) {
-                // Si hay sesión, mostramos loader y sincronizamos
                 loader(true, "SINCRONIZANDO...");
                 await fetchData();
             } else {
@@ -197,7 +209,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v34', JSON.stringify(session));
+            localStorage.setItem('atril_v35', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -227,7 +239,7 @@
             if(!u || !p) return;
             loader(true, "VERIFICANDO...");
             try {
-                await new Promise(r => setTimeout(r, 100)); // Pequeña pausa UI
+                await new Promise(r => setTimeout(r, 100));
                 const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
                 
@@ -255,19 +267,17 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v34', JSON.stringify(session));
+                    localStorage.setItem('atril_v35', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else {
                     alert("ERROR DE DATOS: " + (d.error || 'Desconocido'));
-                    // Si falla la lógica de negocio pero hay sesión, intentamos restaurar caché
                     restore();
                     nav('screen-menu'); 
                 }
             } catch(e) { 
                 console.error(e); 
                 alert("SIN CONEXIÓN: SE USARÁN DATOS GUARDADOS");
-                // Fallback: Si no hay internet, usamos lo guardado
                 restore();
                 nav('screen-menu');
             }
@@ -290,6 +300,51 @@
                     }
                 });
             }
+        }
+
+        // --- REGISTRO & ACUDIENTES ---
+        function toggleAcudiente() {
+            const box = document.getElementById('acudiente-box');
+            if(box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+                document.getElementById('add-acudiente-nombre').value = '';
+                document.getElementById('add-acudiente-telefono').value = '';
+            }
+        }
+
+        async function saveNewStudent() {
+            const d = { 
+                nombres: document.getElementById('add-nombres').value, 
+                apellidos: document.getElementById('add-apellidos').value,
+                telefono: document.getElementById('add-telefono').value, // NUEVO
+                documento: document.getElementById('add-documento').value, 
+                fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
+                proceso: document.getElementById('add-proceso').value, 
+                instrumento: document.getElementById('add-instrumento').value, 
+                grado: document.getElementById('add-grado').value, 
+                eps: document.getElementById('add-eps').value,
+                acudiente: document.getElementById('add-acudiente-nombre').value, // NUEVO
+                telefono_acud: document.getElementById('add-acudiente-telefono').value // NUEVO
+            };
+            
+            if(!d.nombres || !d.documento) return alert("FALTAN DATOS OBLIGATORIOS");
+            loader(true, "GUARDANDO...");
+            try {
+                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
+                const res = await r.json();
+                if(res.success) { 
+                    alert("REGISTRADO CON ÉXITO"); 
+                    // Limpiar todo
+                    document.querySelectorAll('#screen-add-student input').forEach(i => i.value = "");
+                    document.getElementById('acudiente-box').classList.add('hidden');
+                    // Actualizar datos locales
+                    await fetchData(); 
+                    nav('screen-menu'); 
+                }
+            } catch(e) { alert("ERROR AL GUARDAR"); }
+            loader(false);
         }
 
         // --- HORARIO ACUMULATIVO ---
@@ -356,7 +411,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v34', JSON.stringify(session));
+                    localStorage.setItem('atril_v35', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -410,7 +465,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v34', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v35', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -420,25 +475,8 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v34'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v35'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
-            loader(false);
-        }
-
-        async function saveNewStudent() {
-            const d = { 
-                nombres: document.getElementById('add-nombres').value, apellidos: document.getElementById('add-apellidos').value, 
-                documento: document.getElementById('add-documento').value, fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
-                proceso: document.getElementById('add-proceso').value, instrumento: document.getElementById('add-instrumento').value, 
-                grado: document.getElementById('add-grado').value, eps: document.getElementById('add-eps').value
-            };
-            if(!d.nombres || !d.documento) return alert("FALTAN DATOS");
-            loader(true, "GUARDANDO...");
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
-                const res = await r.json();
-                if(res.success) { alert("REGISTRADO"); document.querySelectorAll('#screen-add-student input').forEach(i => i.value = ""); await fetchData(); nav('screen-menu'); }
-            } catch(e) { alert("ERROR AL GUARDAR"); }
             loader(false);
         }
 
