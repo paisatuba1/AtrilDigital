@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.8</title>
+    <title>ATRIL DIGITAL v3.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -13,7 +13,10 @@
         .flex { display: flex !important; }
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Estilo Tabs */
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
+        .dirtab-btn { transition: all 0.2s; } /* Transición suave para tabs del directorio */
+        
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -39,7 +42,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.8</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.9</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -89,10 +92,18 @@
     </div>
 
     <div id="screen-directory" class="hidden p-6 max-w-md mx-auto pb-20">
-        <div class="sticky top-0 bg-[#f8fafc] z-10 pb-4 pt-2">
+        <div class="sticky top-0 bg-[#f8fafc] z-10 pt-2">
             <button onclick="nav('screen-student-menu')" class="text-slate-400 font-black mb-4 text-[11px] uppercase tracking-widest">← VOLVER</button>
             <h2 class="text-lg font-black uppercase text-slate-900 mb-4">BUSCAR ESTUDIANTE</h2>
-            <input type="text" id="search-input" onkeyup="filterDirectory()" placeholder="Nombre o Instrumento..." class="w-full p-4 bg-white border border-slate-200 rounded-xl font-bold text-sm uppercase shadow-sm">
+            <input type="text" id="search-input" onkeyup="filterDirectory()" placeholder="Nombre o Instrumento..." class="w-full p-4 bg-white border border-slate-200 rounded-xl font-bold text-sm uppercase shadow-sm mb-4">
+            
+            <div class="flex gap-4 overflow-x-auto no-scrollbar text-[11px] font-black uppercase border-b pb-2 mb-2">
+                <button onclick="setDirSection('TODOS')" id="dirtab-TODOS" class="dirtab-btn active-tab whitespace-nowrap">TODOS</button>
+                <button onclick="setDirSection('Maderas')" id="dirtab-Maderas" class="dirtab-btn text-slate-300 whitespace-nowrap">Maderas</button>
+                <button onclick="setDirSection('Bronces')" id="dirtab-Bronces" class="dirtab-btn text-slate-300 whitespace-nowrap">Bronces</button>
+                <button onclick="setDirSection('Cuerdas')" id="dirtab-Cuerdas" class="dirtab-btn text-slate-300 whitespace-nowrap">Cuerdas</button>
+                <button onclick="setDirSection('Percusion')" id="dirtab-Percusion" class="dirtab-btn text-slate-300 whitespace-nowrap">Percusión</button>
+            </div>
         </div>
         <div id="directory-list" class="space-y-3 mt-2"></div>
     </div>
@@ -205,14 +216,17 @@
     </div>
 
     <script>
-        // URL v3.8 (Con auto-fix de horario)
+        // URL v3.9
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbysJ7vFWOZZggwGUr9rtTxhsNXXZ6F4Bvr1CNnaqf4Yfo9oj8VR3vgyQhorP7kw5arDzA/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v38')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v38')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v39')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v39')) || {};
         let editingCell = null;
         let isEditing = false;
         let originalDoc = null;
+        
+        // Estado del directorio
+        let currentDirSection = 'TODOS';
 
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
         const SECCIONES = {
@@ -234,7 +248,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v38', JSON.stringify(session));
+            localStorage.setItem('atril_v39', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -245,15 +259,13 @@
             
             if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
             
-            // AUTO-DETECTAR CANTIDAD DE HORAS (FIX v3.8)
             if(id === 'screen-horario') {
-                if(session.horario && session.horario.length >= 7) {
-                    document.getElementById('select-horas').value = "7";
-                } else {
-                    document.getElementById('select-horas').value = "6";
-                }
+                if(session.horario && session.horario.length >= 7) document.getElementById('select-horas').value = "7";
+                else document.getElementById('select-horas').value = "6";
                 buildHorarioTable();
             }
+
+            if(id === 'screen-directory') filterDirectory(); // Cargar lista al entrar
         }
 
         function loader(v, t) {
@@ -291,7 +303,7 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v38', JSON.stringify(session));
+                    localStorage.setItem('atril_v39', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else { alert("ERROR DE DATOS: " + (d.error || 'Desconocido')); restore(); nav('screen-menu'); }
@@ -329,7 +341,21 @@
             nav('screen-form-student');
         }
 
-        function openDirectory() { nav('screen-directory'); filterDirectory(); }
+        function openDirectory() { nav('screen-directory'); }
+
+        // Nueva función para cambiar pestaña en Directorio
+        function setDirSection(sec) {
+            currentDirSection = sec;
+            // Estilos Tabs
+            document.querySelectorAll('.dirtab-btn').forEach(b => {
+                b.classList.remove('active-tab', 'text-slate-900');
+                b.classList.add('text-slate-300');
+            });
+            document.getElementById(`dirtab-${sec}`).classList.add('active-tab', 'text-slate-900');
+            document.getElementById(`dirtab-${sec}`).classList.remove('text-slate-300');
+
+            filterDirectory(); // Re-ejecutar filtro
+        }
 
         function filterDirectory() {
             const q = document.getElementById('search-input').value.toLowerCase();
@@ -337,9 +363,40 @@
             list.innerHTML = "";
             if(!session.master) return;
             
-            const filtered = session.master.filter(m => 
+            // 1. Filtrar por Búsqueda + Sección
+            let filtered = session.master.filter(m => 
                 (m.nombres + " " + m.apellidos + " " + m.instrumento).toLowerCase().includes(q)
-            ).sort((a,b) => (a.nombres > b.nombres) ? 1 : -1);
+            );
+
+            if (currentDirSection !== 'TODOS') {
+                filtered = filtered.filter(m => {
+                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase()));
+                    return miFamilia === currentDirSection;
+                });
+            }
+
+            // 2. Ordenar ORQUESTALMENTE (Igual que en asistencia)
+            filtered.sort((a, b) => {
+                const idxA = ORDEN_INST.indexOf(String(a.instrumento).toLowerCase());
+                const idxB = ORDEN_INST.indexOf(String(b.instrumento).toLowerCase());
+                
+                // Si ambos instrumentos están en la lista oficial, ordenamos por instrumento
+                if (idxA !== -1 && idxB !== -1) {
+                    if (idxA !== idxB) return idxA - idxB;
+                    // Si es el mismo instrumento, ordenamos por Nombre A-Z
+                    return a.nombres.localeCompare(b.nombres);
+                }
+                
+                // Si alguno no está en la lista (ej. instrumento nuevo), se va al final
+                if (idxA === -1) return 1;
+                if (idxB === -1) return -1;
+            });
+
+            // 3. Renderizar
+            if(filtered.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-[10px] mt-4 font-bold uppercase">NO SE ENCONTRARON RESULTADOS</p>`;
+                return;
+            }
 
             filtered.forEach(m => {
                 const item = document.createElement('div');
@@ -482,7 +539,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v38', JSON.stringify(session));
+                    localStorage.setItem('atril_v39', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -535,7 +592,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v38', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v39', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -545,7 +602,7 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v38'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v39'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
