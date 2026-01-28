@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.9</title>
+    <title>ATRIL DIGITAL v4.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -13,15 +13,13 @@
         .flex { display: flex !important; }
         .loader { border-top-color: #0f172a; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Estilo Tabs */
         .active-tab { border-bottom: 3px solid #0f172a; color: #0f172a; font-weight: 900; }
-        .dirtab-btn { transition: all 0.2s; } /* Transición suave para tabs del directorio */
+        .dirtab-btn { transition: all 0.2s; }
         
         input, select { border: 1px solid #e2e8f0 !important; outline: none; appearance: none; }
         .btn-status { font-size: 8.5px; font-weight: 700; padding: 12px 2px; border-radius: 8px; text-transform: uppercase; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Ajustes visuales */
         .horario-grid { display: grid; grid-template-columns: 40px repeat(5, 1fr); gap: 2px; background: #0f172a; border: 2px solid #0f172a; }
         .horario-cell { min-height: 60px; padding: 2px; background: white; font-size: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; word-break: break-word; }
         .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
@@ -42,7 +40,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.9</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v4.0</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -210,22 +208,25 @@
             </div>
         </div>
         <div id="musicos-box" class="p-6 space-y-3"></div>
-        <div class="fixed bottom-0 bg-white/90 w-full p-6 border-t flex gap-3">
-            <button onclick="finalize()" class="flex-[2] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[11px]">GUARDAR ASISTENCIA</button>
+        
+        <div class="fixed bottom-0 bg-white/90 w-full p-4 border-t flex gap-2">
+            <button onclick="generateWAReport()" class="flex-[1] bg-green-500 text-white p-4 rounded-xl font-bold uppercase text-2xl flex items-center justify-center">
+                <span>📱</span>
+            </button>
+            <button onclick="finalize()" class="flex-[3] bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-[11px]">GUARDAR ASISTENCIA</button>
         </div>
     </div>
 
     <script>
-        // URL v3.9
+        // URL v4.0
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbysJ7vFWOZZggwGUr9rtTxhsNXXZ6F4Bvr1CNnaqf4Yfo9oj8VR3vgyQhorP7kw5arDzA/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v39')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v39')) || {};
+        // Key v40
+        let session = JSON.parse(localStorage.getItem('atril_v40')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v40')) || {};
         let editingCell = null;
         let isEditing = false;
         let originalDoc = null;
-        
-        // Estado del directorio
         let currentDirSection = 'TODOS';
 
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
@@ -248,7 +249,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v39', JSON.stringify(session));
+            localStorage.setItem('atril_v40', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -264,8 +265,7 @@
                 else document.getElementById('select-horas').value = "6";
                 buildHorarioTable();
             }
-
-            if(id === 'screen-directory') filterDirectory(); // Cargar lista al entrar
+            if(id === 'screen-directory') filterDirectory();
         }
 
         function loader(v, t) {
@@ -303,7 +303,7 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v39', JSON.stringify(session));
+                    localStorage.setItem('atril_v40', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else { alert("ERROR DE DATOS: " + (d.error || 'Desconocido')); restore(); nav('screen-menu'); }
@@ -327,10 +327,9 @@
             }
         }
 
-        // --- GESTIÓN ESTUDIANTES & DIRECTORIO ---
+        // --- GESTIÓN ESTUDIANTES ---
         function prepareNewStudent() {
-            isEditing = false;
-            originalDoc = null;
+            isEditing = false; originalDoc = null;
             document.getElementById('form-title').innerText = "NUEVO INTEGRANTE";
             document.getElementById('btn-save-student').innerText = "GUARDAR REGISTRO";
             document.getElementById('btn-save-student').classList.remove('bg-blue-600');
@@ -343,18 +342,12 @@
 
         function openDirectory() { nav('screen-directory'); }
 
-        // Nueva función para cambiar pestaña en Directorio
         function setDirSection(sec) {
             currentDirSection = sec;
-            // Estilos Tabs
-            document.querySelectorAll('.dirtab-btn').forEach(b => {
-                b.classList.remove('active-tab', 'text-slate-900');
-                b.classList.add('text-slate-300');
-            });
+            document.querySelectorAll('.dirtab-btn').forEach(b => { b.classList.remove('active-tab', 'text-slate-900'); b.classList.add('text-slate-300'); });
             document.getElementById(`dirtab-${sec}`).classList.add('active-tab', 'text-slate-900');
             document.getElementById(`dirtab-${sec}`).classList.remove('text-slate-300');
-
-            filterDirectory(); // Re-ejecutar filtro
+            filterDirectory();
         }
 
         function filterDirectory() {
@@ -363,119 +356,67 @@
             list.innerHTML = "";
             if(!session.master) return;
             
-            // 1. Filtrar por Búsqueda + Sección
-            let filtered = session.master.filter(m => 
-                (m.nombres + " " + m.apellidos + " " + m.instrumento).toLowerCase().includes(q)
-            );
-
+            let filtered = session.master.filter(m => (m.nombres + " " + m.apellidos + " " + m.instrumento).toLowerCase().includes(q));
             if (currentDirSection !== 'TODOS') {
                 filtered = filtered.filter(m => {
                     const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase()));
                     return miFamilia === currentDirSection;
                 });
             }
-
-            // 2. Ordenar ORQUESTALMENTE (Igual que en asistencia)
             filtered.sort((a, b) => {
                 const idxA = ORDEN_INST.indexOf(String(a.instrumento).toLowerCase());
                 const idxB = ORDEN_INST.indexOf(String(b.instrumento).toLowerCase());
-                
-                // Si ambos instrumentos están en la lista oficial, ordenamos por instrumento
-                if (idxA !== -1 && idxB !== -1) {
-                    if (idxA !== idxB) return idxA - idxB;
-                    // Si es el mismo instrumento, ordenamos por Nombre A-Z
-                    return a.nombres.localeCompare(b.nombres);
-                }
-                
-                // Si alguno no está en la lista (ej. instrumento nuevo), se va al final
-                if (idxA === -1) return 1;
-                if (idxB === -1) return -1;
+                if (idxA !== -1 && idxB !== -1) { if (idxA !== idxB) return idxA - idxB; return a.nombres.localeCompare(b.nombres); }
+                if (idxA === -1) return 1; if (idxB === -1) return -1;
             });
-
-            // 3. Renderizar
-            if(filtered.length === 0) {
-                list.innerHTML = `<p class="text-center text-slate-400 text-[10px] mt-4 font-bold uppercase">NO SE ENCONTRARON RESULTADOS</p>`;
-                return;
-            }
-
+            if(filtered.length === 0) { list.innerHTML = `<p class="text-center text-slate-400 text-[10px] mt-4 font-bold uppercase">NO SE ENCONTRARON RESULTADOS</p>`; return; }
             filtered.forEach(m => {
                 const item = document.createElement('div');
                 item.className = "bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer active:scale-95 transition-transform";
                 item.onclick = () => loadStudentForEdit(m);
-                item.innerHTML = `
-                    <div>
-                        <p class="font-bold text-xs uppercase text-slate-800">${m.nombres} ${m.apellidos}</p>
-                        <p class="text-[9px] font-black text-slate-400 mt-0.5 uppercase">${m.instrumento} • ${m.proceso}</p>
-                    </div>
-                    <div class="text-slate-300">✎</div>
-                `;
+                item.innerHTML = `<div><p class="font-bold text-xs uppercase text-slate-800">${m.nombres} ${m.apellidos}</p><p class="text-[9px] font-black text-slate-400 mt-0.5 uppercase">${m.instrumento} • ${m.proceso}</p></div><div class="text-slate-300">✎</div>`;
                 list.appendChild(item);
             });
         }
 
         function loadStudentForEdit(m) {
-            isEditing = true;
-            originalDoc = m.documento;
+            isEditing = true; originalDoc = m.documento;
             document.getElementById('form-title').innerText = "EDITAR ESTUDIANTE";
             const btn = document.getElementById('btn-save-student');
             btn.innerText = "ACTUALIZAR DATOS";
-            btn.classList.remove('bg-slate-900');
-            btn.classList.add('bg-blue-600');
-            
-            document.getElementById('add-nombres').value = m.nombres;
-            document.getElementById('add-apellidos').value = m.apellidos;
-            document.getElementById('add-telefono').value = m.telefono;
-            document.getElementById('add-eps').value = m.eps;
+            btn.classList.remove('bg-slate-900'); btn.classList.add('bg-blue-600');
+            document.getElementById('add-nombres').value = m.nombres; document.getElementById('add-apellidos').value = m.apellidos;
+            document.getElementById('add-telefono').value = m.telefono; document.getElementById('add-eps').value = m.eps;
             document.getElementById('add-documento').value = m.documento;
             if(m.fecha_nacimiento) { let dateVal = m.fecha_nacimiento.replace(/'/g, ''); document.getElementById('add-fecha_nacimiento').value = dateVal.split('T')[0]; }
-            document.getElementById('add-proceso').value = m.proceso;
-            document.getElementById('add-instrumento').value = m.instrumento;
-            document.getElementById('add-grado').value = m.grado;
-            document.getElementById('add-acudiente-nombre').value = m.acudiente;
-            document.getElementById('add-acudiente-telefono').value = m.telefono_acud;
-            
-            if(m.acudiente || m.telefono_acud) document.getElementById('acudiente-box').classList.remove('hidden');
-            else document.getElementById('acudiente-box').classList.add('hidden');
+            document.getElementById('add-proceso').value = m.proceso; document.getElementById('add-instrumento').value = m.instrumento; document.getElementById('add-grado').value = m.grado;
+            document.getElementById('add-acudiente-nombre').value = m.acudiente; document.getElementById('add-acudiente-telefono').value = m.telefono_acud;
+            if(m.acudiente || m.telefono_acud) document.getElementById('acudiente-box').classList.remove('hidden'); else document.getElementById('acudiente-box').classList.add('hidden');
             nav('screen-form-student');
         }
 
         function toggleAcudiente() {
             const box = document.getElementById('acudiente-box');
-            if(box.classList.contains('hidden')) {
-                box.classList.remove('hidden');
-            } else {
-                box.classList.add('hidden');
-                document.getElementById('add-acudiente-nombre').value = '';
-                document.getElementById('add-acudiente-telefono').value = '';
-            }
+            if(box.classList.contains('hidden')) { box.classList.remove('hidden'); } else { box.classList.add('hidden'); document.getElementById('add-acudiente-nombre').value = ''; document.getElementById('add-acudiente-telefono').value = ''; }
         }
 
         async function saveStudent() {
             const d = { 
-                nombres: document.getElementById('add-nombres').value, 
-                apellidos: document.getElementById('add-apellidos').value,
-                telefono: document.getElementById('add-telefono').value,
-                documento: document.getElementById('add-documento').value, 
-                fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value,
-                proceso: document.getElementById('add-proceso').value, 
-                instrumento: document.getElementById('add-instrumento').value, 
-                grado: document.getElementById('add-grado').value, 
-                eps: document.getElementById('add-eps').value,
-                acudiente: document.getElementById('add-acudiente-nombre').value,
+                nombres: document.getElementById('add-nombres').value, apellidos: document.getElementById('add-apellidos').value,
+                telefono: document.getElementById('add-telefono').value, documento: document.getElementById('add-documento').value, 
+                fecha_nacimiento: document.getElementById('add-fecha_nacimiento').value, proceso: document.getElementById('add-proceso').value, 
+                instrumento: document.getElementById('add-instrumento').value, grado: document.getElementById('add-grado').value, 
+                eps: document.getElementById('add-eps').value, acudiente: document.getElementById('add-acudiente-nombre').value,
                 telefono_acud: document.getElementById('add-acudiente-telefono').value
             };
             if(!d.nombres || !d.documento) return alert("FALTAN DATOS OBLIGATORIOS");
             loader(true, isEditing ? "ACTUALIZANDO..." : "GUARDANDO...");
-            const actionType = isEditing ? 'editEstudiante' : 'addEstudiante';
-            const payload = { action: actionType, sheetId: session.sheetId, datos: d, originalDocumento: originalDoc };
+            const payload = { action: isEditing ? 'editEstudiante' : 'addEstudiante', sheetId: session.sheetId, datos: d, originalDocumento: originalDoc };
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const res = await r.json();
-                if(res.success) { 
-                    alert(isEditing ? "DATOS ACTUALIZADOS" : "REGISTRADO CON ÉXITO"); 
-                    await fetchData(); 
-                    nav('screen-student-menu'); 
-                } else { alert("ERROR: " + (res.error || "No se pudo guardar")); }
+                if(res.success) { alert(isEditing ? "DATOS ACTUALIZADOS" : "REGISTRADO CON ÉXITO"); await fetchData(); nav('screen-student-menu'); } 
+                else { alert("ERROR: " + (res.error || "No se pudo guardar")); }
             } catch(e) { alert("ERROR AL GUARDAR"); }
             loader(false);
         }
@@ -489,64 +430,17 @@
                 for(let d=0; d<5; d++) {
                     const cell = document.createElement('div'); cell.className="horario-cell";
                     cell.id = `cell-${h}-${d}`;
-                    if(session.horario[h-1]) {
-                        let diaKey = DIAS_KEYS[d];
-                        if(session.horario[h-1][diaKey]) cell.innerText = session.horario[h-1][diaKey];
-                    }
+                    if(session.horario[h-1]) { let diaKey = DIAS_KEYS[d]; if(session.horario[h-1][diaKey]) cell.innerText = session.horario[h-1][diaKey]; }
                     cell.onclick = () => { editingCell = {h,d}; openGradoModal(); };
                     hBox.appendChild(cell);
                 }
             }
         }
+        function openGradoModal() { if (!session.config.grado || session.config.grado.length === 0) return alert("No hay grados configurados"); document.getElementById('modal-grupo').classList.remove('hidden'); let html = `<button onclick="setGrado('')" class="w-full p-3 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase">LIMPIAR CELDA</button>`; session.config.grado.forEach(g => { html += `<button onclick="setGrado('${g}')" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-[10px] uppercase">${g}</button>`; }); document.getElementById('lista-grados-modal').innerHTML = html; }
+        function setGrado(v) { const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`); if(v === '') { cell.innerText = ""; } else { if(cell.innerText.trim() !== "") { if(!cell.innerText.includes(v)) cell.innerText += " / " + v; } else { cell.innerText = v; } } document.getElementById('modal-grupo').classList.add('hidden'); }
+        async function saveHorario() { loader(true, "GUARDANDO..."); const matriz = []; const numHoras = parseInt(document.getElementById('select-horas').value); for(let h=1; h<=numHoras; h++) { let fila = [h]; for(let d=0; d<5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText); matriz.push(fila); } try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })}); const res = await r.json(); if(res.success) { let newHorario = []; for(let i=0; i<matriz.length; i++) { let row = matriz[i]; newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] }); } session.horario = newHorario; localStorage.setItem('atril_v40', JSON.stringify(session)); alert("HORARIO GUARDADO"); } } catch(e) { alert("Error al guardar"); } loader(false); }
 
-        function openGradoModal() {
-            if (!session.config.grado || session.config.grado.length === 0) return alert("No hay grados configurados");
-            document.getElementById('modal-grupo').classList.remove('hidden');
-            let html = `<button onclick="setGrado('')" class="w-full p-3 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase">LIMPIAR CELDA</button>`;
-            session.config.grado.forEach(g => {
-                html += `<button onclick="setGrado('${g}')" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-[10px] uppercase">${g}</button>`;
-            });
-            document.getElementById('lista-grados-modal').innerHTML = html;
-        }
-
-        function setGrado(v) {
-            const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`);
-            if(v === '') { cell.innerText = ""; } 
-            else { 
-                if(cell.innerText.trim() !== "") { 
-                    if(!cell.innerText.includes(v)) cell.innerText += " / " + v; 
-                } else { cell.innerText = v; }
-            }
-            document.getElementById('modal-grupo').classList.add('hidden');
-        }
-
-        async function saveHorario() {
-            loader(true, "GUARDANDO...");
-            const matriz = []; 
-            const numHoras = parseInt(document.getElementById('select-horas').value);
-            for(let h=1; h<=numHoras; h++) {
-                let fila = [h];
-                for(let d=0; d<5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText);
-                matriz.push(fila);
-            }
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })});
-                const res = await r.json();
-                if(res.success) {
-                    let newHorario = [];
-                    for(let i=0; i<matriz.length; i++) {
-                         let row = matriz[i];
-                         newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
-                    }
-                    session.horario = newHorario;
-                    localStorage.setItem('atril_v39', JSON.stringify(session));
-                    alert("HORARIO GUARDADO");
-                }
-            } catch(e) { alert("Error al guardar"); }
-            loader(false);
-        }
-
-        // --- ASISTENCIA ---
+        // --- ASISTENCIA & REPORTE WA ---
         function prepareProcess() {
             session.date = document.getElementById('event-date').value;
             session.type = document.getElementById('event-type').value;
@@ -555,56 +449,77 @@
             if(!session.config.proceso || session.config.proceso.length === 0) return alert("Error: No se cargaron los procesos. Reinicia sesión.");
             nav('screen-process');
         }
-
-        function initAt(p) {
-            session.process = p; 
-            document.getElementById('info-header').innerText = `${p} • ${session.act}`; 
-            nav('screen-list');
-            renderList('TODOS');
-        }
-
+        function initAt(p) { session.process = p; document.getElementById('info-header').innerText = `${p} • ${session.act}`; nav('screen-list'); renderList('TODOS'); }
         function renderList(secc) {
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
             if(!session.master) return;
-
-            let filtered = session.master.filter(m => String(m.proceso) === String(session.process))
-            .sort((a, b) => ORDEN_INST.indexOf(String(a.instrumento).toLowerCase()) - ORDEN_INST.indexOf(String(b.instrumento).toLowerCase()));
-
-            if (secc !== 'TODOS') {
-                filtered = filtered.filter(m => {
-                    const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase()));
-                    return miFamilia === secc;
-                });
-            }
-
+            let filtered = session.master.filter(m => String(m.proceso) === String(session.process)).sort((a, b) => ORDEN_INST.indexOf(String(a.instrumento).toLowerCase()) - ORDEN_INST.indexOf(String(b.instrumento).toLowerCase()));
+            if (secc !== 'TODOS') { filtered = filtered.filter(m => { const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase())); return miFamilia === secc; }); }
             filtered.forEach(m => {
                 const n = `${m.nombres} ${m.apellidos}`.toUpperCase(), s = record[n] || '';
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border";
-                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase text-slate-800">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div>
-                <div class="grid grid-cols-4 gap-1">
-                ${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}
-                </div>`;
+                const card = document.createElement('div'); card.className = "bg-white p-4 rounded-2xl shadow-sm border";
+                card.innerHTML = `<div class="mb-3"><p class="font-bold text-[13px] uppercase text-slate-800">${n}</p><p class="text-[9px] font-black text-slate-400 mt-1 uppercase">${m.instrumento} • ${m.grado}</p></div><div class="grid grid-cols-4 gap-1">${['PRESENTE','AUSENTE','RETARDO','EXCUSA'].map(st => `<button onclick="mark('${n}','${st}')" class="btn-status border ${s === st ? getCol(st) : 'bg-slate-50 text-slate-400 border-slate-50'}">${st}</button>`).join('')}</div>`;
                 box.appendChild(card);
             });
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
-
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v39', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v40', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
             if(!Object.keys(record).length) return alert("NO HAY MARCACIONES");
             loader(true, "GUARDANDO...");
             const data = Object.entries(record).map(([n, e]) => ({ fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e }));
-            try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
-                const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v39'); nav('screen-menu'); }
-            } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
+            try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })}); const res = await r.json(); if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v40'); nav('screen-menu'); } } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
+        }
+
+        // --- FUNCIÓN GENERAR REPORTE WA ---
+        function generateWAReport() {
+            if(Object.keys(record).length === 0) return alert("No has marcado asistencia aún.");
+            
+            // 1. Obtener listados
+            let ausentes = [];
+            let retardos = [];
+            
+            // Recorremos el registro actual
+            for (const [nombre, estado] of Object.entries(record)) {
+                // Buscar instrumento del estudiante para agregarlo al mensaje
+                let estudiante = session.master.find(m => `${m.nombres} ${m.apellidos}`.toUpperCase() === nombre);
+                let inst = estudiante ? estudiante.instrumento : "";
+                
+                if (estado === 'AUSENTE') ausentes.push(`${nombre} (${inst})`);
+                if (estado === 'RETARDO') retardos.push(`${nombre} (${inst})`);
+            }
+            
+            if(ausentes.length === 0 && retardos.length === 0) return alert("No hay ausentes ni retardos para reportar.");
+
+            // 2. Construir Mensaje
+            // Formato Fecha: DD/MM/YYYY
+            const fechaParts = session.date.split('-'); // Viene como YYYY-MM-DD
+            const fechaFormato = `${fechaParts[2]}/${fechaParts[1]}/${fechaParts[0]}`;
+
+            let msg = `📅 REPORTE ASISTENCIA ${session.banda.toUpperCase()}\n`;
+            msg += `Proceso: ${session.process}\n`;
+            msg += `Fecha: ${fechaFormato}\n\n`;
+
+            if(ausentes.length > 0) {
+                msg += `🔴 *AUSENTES:*\n`;
+                ausentes.forEach((a, i) => msg += `${i+1}. ${a}\n`);
+                msg += `\n`;
+            }
+
+            if(retardos.length > 0) {
+                msg += `🟡 *RETARDOS:*\n`;
+                retardos.forEach((r, i) => msg += `${i+1}. ${r}\n`);
+                msg += `\n`;
+            }
+
+            // 3. Abrir WhatsApp
+            const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
         }
 
         function toggleEventDesc() { document.getElementById('event-desc-box').classList.toggle('hidden', document.getElementById('event-type').value !== 'Presentación'); }
