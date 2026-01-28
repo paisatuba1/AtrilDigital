@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.6</title>
+    <title>ATRIL DIGITAL v3.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -23,8 +23,6 @@
         .horario-cell { min-height: 60px; padding: 2px; background: white; font-size: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; text-transform: uppercase; line-height: 1.1; word-break: break-word; }
         .horario-header { background: #0f172a; color: white; padding: 8px 0; text-align: center; font-size: 9px; font-weight: 900; text-transform: uppercase; }
         .input-simetrico { height: 48px; width: 100%; padding: 12px; background-color: #f8fafc; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 700; }
-        
-        /* Transición suave para acudiente */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -41,7 +39,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.6</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.7</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -65,20 +63,46 @@
             <span class="font-black text-sm uppercase text-slate-700">ASISTENCIA</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📋</div>
         </button>
-        <button onclick="nav('screen-add-student')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
-            <span class="font-black text-sm uppercase text-slate-700">INGRESAR ESTUDIANTES</span>
+        
+        <button onclick="nav('screen-student-menu')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
+            <span class="font-black text-sm uppercase text-slate-700">GESTIÓN ESTUDIANTES</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">👤</div>
         </button>
+        
         <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase text-slate-700">HORARIO</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📅</div>
         </button>
     </div>
 
-    <div id="screen-add-student" class="hidden p-6 max-w-md mx-auto pb-20">
-        <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
+    <div id="screen-student-menu" class="hidden p-6 max-w-md mx-auto space-y-4">
+        <button onclick="nav('screen-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER AL MENÚ</button>
+        <h2 class="text-xl font-black uppercase text-slate-900 mb-6">OPCIONES</h2>
+        
+        <button onclick="prepareNewStudent()" class="w-full bg-slate-900 text-white p-8 rounded-2xl shadow-lg flex justify-between items-center">
+            <span class="font-black text-sm uppercase">AGREGAR ESTUDIANTE +</span>
+            <span class="text-2xl">📝</span>
+        </button>
+        
+        <button onclick="openDirectory()" class="w-full bg-white p-8 rounded-2xl shadow-sm border flex justify-between items-center">
+            <span class="font-black text-sm uppercase text-slate-700">DIRECTORIO ESTUDIANTES</span>
+            <span class="text-2xl">📂</span>
+        </button>
+    </div>
+
+    <div id="screen-directory" class="hidden p-6 max-w-md mx-auto pb-20">
+        <div class="sticky top-0 bg-[#f8fafc] z-10 pb-4 pt-2">
+            <button onclick="nav('screen-student-menu')" class="text-slate-400 font-black mb-4 text-[11px] uppercase tracking-widest">← VOLVER</button>
+            <h2 class="text-lg font-black uppercase text-slate-900 mb-4">BUSCAR ESTUDIANTE</h2>
+            <input type="text" id="search-input" onkeyup="filterDirectory()" placeholder="Nombre o Instrumento..." class="w-full p-4 bg-white border border-slate-200 rounded-xl font-bold text-sm uppercase shadow-sm">
+        </div>
+        <div id="directory-list" class="space-y-3 mt-2"></div>
+    </div>
+
+    <div id="screen-form-student" class="hidden p-6 max-w-md mx-auto pb-20">
+        <button onclick="nav('screen-student-menu')" class="text-slate-400 font-black mb-6 text-[11px] uppercase tracking-widest">← VOLVER</button>
         <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100 space-y-4">
-            <h2 class="text-lg font-black uppercase text-slate-900">NUEVO INTEGRANTE</h2>
+            <h2 id="form-title" class="text-lg font-black uppercase text-slate-900">NUEVO INTEGRANTE</h2>
             
             <input type="text" id="add-nombres" placeholder="Nombres" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
             <input type="text" id="add-apellidos" placeholder="Apellidos" class="w-full p-4 bg-slate-50 rounded-lg text-sm font-bold">
@@ -109,7 +133,7 @@
                 <input type="tel" id="add-acudiente-telefono" placeholder="Teléfono Acudiente" class="w-full p-3 bg-white rounded-lg text-sm font-bold">
             </div>
 
-            <button onclick="saveNewStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs mt-2">GUARDAR REGISTRO</button>
+            <button id="btn-save-student" onclick="saveStudent()" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold uppercase text-xs mt-2">GUARDAR REGISTRO</button>
         </div>
     </div>
 
@@ -183,14 +207,19 @@
     </div>
 
     <script>
-        // URL v3.6 (Script Filtro Inteligente + Registro 11 columnas)
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbz28ZDlRY3WLSUixFVhAePAijF3xR47CaVg-fOnGx1WshCEY9QVVLi64pcY-h17gy2fXw/exec";
+        // URL v3.7 (Con Edit Support)
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbysJ7vFWOZZggwGUr9rtTxhsNXXZ6F4Bvr1CNnaqf4Yfo9oj8VR3vgyQhorP7kw5arDzA/exec";
         
-        let session = JSON.parse(localStorage.getItem('atril_v36')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v36')) || {};
+        // Key v37
+        let session = JSON.parse(localStorage.getItem('atril_v37')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v37')) || {};
         let editingCell = null;
-        const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+        
+        // Variables para Edición
+        let isEditing = false;
+        let originalDoc = null;
 
+        const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
         const SECCIONES = {
             "Maderas": ["flauta", "oboe", "fagot", "clarinete requinto", "clarinete soprano", "clarinete bajo", "saxofon soprano", "saxofon alto", "saxofon tenor", "saxofon baritono"],
             "Bronces": ["trompeta", "corno", "trombon", "eufonio", "tuba"],
@@ -210,7 +239,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v36', JSON.stringify(session));
+            localStorage.setItem('atril_v37', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -226,13 +255,8 @@
         function loader(v, t) {
             const l = document.getElementById('loader');
             document.getElementById('loader-text').innerText = t || "CARGANDO...";
-            if(v) {
-                l.classList.remove('hidden');
-                l.classList.add('flex');
-            } else {
-                l.classList.add('hidden');
-                l.classList.remove('flex');
-            }
+            if(v) { l.classList.remove('hidden'); l.classList.add('flex'); } 
+            else { l.classList.add('hidden'); l.classList.remove('flex'); }
         }
 
         async function loginProcess() {
@@ -243,7 +267,6 @@
                 await new Promise(r => setTimeout(r, 100));
                 const r = await fetch(`${MOTOR_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
                 const d = await r.json();
-                
                 if(d.success) {
                     session.user = u; session.banda = d.banda; session.sheetId = d.sheetId;
                     loader(true, "DESCARGANDO DATOS...");
@@ -253,45 +276,30 @@
                     document.getElementById('login-error').classList.remove('hidden'); 
                     loader(false); 
                 }
-            } catch(e) { 
-                alert("ERROR DE CONEXIÓN: " + e.message); 
-                loader(false); 
-            }
+            } catch(e) { alert("ERROR DE CONEXIÓN: " + e.message); loader(false); }
         }
 
         async function fetchData() {
             try {
                 const r = await fetch(`${MOTOR_URL}?action=getDataInicial&sheetId=${session.sheetId}`);
                 const d = await r.json();
-                
                 if (d.success) {
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v36', JSON.stringify(session));
+                    localStorage.setItem('atril_v37', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
-                } else {
-                    alert("ERROR DE DATOS: " + (d.error || 'Desconocido'));
-                    restore();
-                    nav('screen-menu'); 
-                }
-            } catch(e) { 
-                console.error(e); 
-                alert("SIN CONEXIÓN: SE USARÁN DATOS GUARDADOS");
-                restore();
-                nav('screen-menu');
-            }
+                } else { alert("ERROR DE DATOS: " + (d.error || 'Desconocido')); restore(); nav('screen-menu'); }
+            } catch(e) { console.error(e); alert("SIN CONEXIÓN: SE USARÁN DATOS GUARDADOS"); restore(); nav('screen-menu'); }
             loader(false);
         }
 
         function restore() {
             if(!session.config) return; 
             document.getElementById('display-band-name').innerText = session.banda || "---";
-            
             if(session.config.proceso && session.config.proceso.length > 0) {
                 document.getElementById('process-buttons').innerHTML = session.config.proceso.map(p => `<button onclick="initAt('${p}')" class="w-full p-6 bg-white rounded-2xl shadow-sm border font-black text-left uppercase text-xs text-slate-700">${p}</button>`).join('');
-                
                 ['proceso','instrumento','grado'].forEach(k => {
                     const s = document.getElementById(`add-${k}`);
                     if(s && session.config[k]) {
@@ -303,7 +311,97 @@
             }
         }
 
-        // --- REGISTRO & ACUDIENTES ---
+        // --- GESTIÓN ESTUDIANTES & DIRECTORIO ---
+        
+        function prepareNewStudent() {
+            isEditing = false;
+            originalDoc = null;
+            document.getElementById('form-title').innerText = "NUEVO INTEGRANTE";
+            document.getElementById('btn-save-student').innerText = "GUARDAR REGISTRO";
+            document.getElementById('btn-save-student').classList.remove('bg-blue-600');
+            document.getElementById('btn-save-student').classList.add('bg-slate-900');
+            
+            // Limpiar campos
+            document.querySelectorAll('#screen-form-student input').forEach(i => i.value = "");
+            document.querySelectorAll('#screen-form-student select').forEach(s => s.selectedIndex = 0);
+            document.getElementById('acudiente-box').classList.add('hidden');
+            
+            nav('screen-form-student');
+        }
+
+        function openDirectory() {
+            nav('screen-directory');
+            filterDirectory();
+        }
+
+        function filterDirectory() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const list = document.getElementById('directory-list');
+            list.innerHTML = "";
+            
+            if(!session.master) return;
+            
+            // Filtrar y ordenar
+            const filtered = session.master.filter(m => 
+                (m.nombres + " " + m.apellidos + " " + m.instrumento).toLowerCase().includes(q)
+            ).sort((a,b) => (a.nombres > b.nombres) ? 1 : -1);
+
+            filtered.forEach(m => {
+                const item = document.createElement('div');
+                item.className = "bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer active:scale-95 transition-transform";
+                item.onclick = () => loadStudentForEdit(m);
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold text-xs uppercase text-slate-800">${m.nombres} ${m.apellidos}</p>
+                        <p class="text-[9px] font-black text-slate-400 mt-0.5 uppercase">${m.instrumento} • ${m.proceso}</p>
+                    </div>
+                    <div class="text-slate-300">✎</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function loadStudentForEdit(m) {
+            isEditing = true;
+            originalDoc = m.documento; // Guardamos el ID original para saber a quién editar
+            
+            document.getElementById('form-title').innerText = "EDITAR ESTUDIANTE";
+            const btn = document.getElementById('btn-save-student');
+            btn.innerText = "ACTUALIZAR DATOS";
+            btn.classList.remove('bg-slate-900');
+            btn.classList.add('bg-blue-600'); // Color diferente para editar
+
+            // Llenar campos
+            document.getElementById('add-nombres').value = m.nombres;
+            document.getElementById('add-apellidos').value = m.apellidos;
+            document.getElementById('add-telefono').value = m.telefono;
+            document.getElementById('add-eps').value = m.eps;
+            document.getElementById('add-documento').value = m.documento;
+            
+            // Fecha: Convertir formato si es necesario (Excel a input date)
+            if(m.fecha_nacimiento) {
+                // Intento simple de formatear si viene como YYYY-MM-DD
+                let dateVal = m.fecha_nacimiento.replace(/'/g, ''); 
+                document.getElementById('add-fecha_nacimiento').value = dateVal.split('T')[0];
+            }
+
+            document.getElementById('add-proceso').value = m.proceso;
+            document.getElementById('add-instrumento').value = m.instrumento;
+            document.getElementById('add-grado').value = m.grado;
+
+            // Acudiente
+            document.getElementById('add-acudiente-nombre').value = m.acudiente;
+            document.getElementById('add-acudiente-telefono').value = m.telefono_acud;
+            
+            if(m.acudiente || m.telefono_acud) {
+                document.getElementById('acudiente-box').classList.remove('hidden');
+            } else {
+                document.getElementById('acudiente-box').classList.add('hidden');
+            }
+
+            nav('screen-form-student');
+        }
+
         function toggleAcudiente() {
             const box = document.getElementById('acudiente-box');
             if(box.classList.contains('hidden')) {
@@ -315,7 +413,7 @@
             }
         }
 
-        async function saveNewStudent() {
+        async function saveStudent() {
             const d = { 
                 nombres: document.getElementById('add-nombres').value, 
                 apellidos: document.getElementById('add-apellidos').value,
@@ -331,22 +429,32 @@
             };
             
             if(!d.nombres || !d.documento) return alert("FALTAN DATOS OBLIGATORIOS");
-            loader(true, "GUARDANDO...");
+            
+            loader(true, isEditing ? "ACTUALIZANDO..." : "GUARDANDO...");
+            
+            const actionType = isEditing ? 'editEstudiante' : 'addEstudiante';
+            const payload = { 
+                action: actionType, 
+                sheetId: session.sheetId, 
+                datos: d,
+                originalDocumento: originalDoc // Solo se usa si es edición
+            };
+
             try {
-                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'addEstudiante', sheetId: session.sheetId, datos: d })});
+                const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const res = await r.json();
                 if(res.success) { 
-                    alert("REGISTRADO CON ÉXITO"); 
-                    document.querySelectorAll('#screen-add-student input').forEach(i => i.value = "");
-                    document.getElementById('acudiente-box').classList.add('hidden');
-                    await fetchData(); 
-                    nav('screen-menu'); 
+                    alert(isEditing ? "DATOS ACTUALIZADOS" : "REGISTRADO CON ÉXITO"); 
+                    await fetchData(); // Recargar datos para ver cambios
+                    nav('screen-student-menu'); 
+                } else {
+                    alert("ERROR: " + (res.error || "No se pudo guardar"));
                 }
             } catch(e) { alert("ERROR AL GUARDAR"); }
             loader(false);
         }
 
-        // --- HORARIO ACUMULATIVO ---
+        // --- HORARIO ---
         function buildHorarioTable() {
             const hBox = document.getElementById('horario-body'); hBox.innerHTML = "";
             const numHoras = parseInt(document.getElementById('select-horas').value);
@@ -410,7 +518,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v36', JSON.stringify(session));
+                    localStorage.setItem('atril_v37', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -464,7 +572,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v36', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v37', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -474,7 +582,7 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v36'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v37'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
