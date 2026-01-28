@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v4.1</title>
+    <title>ATRIL DIGITAL v4.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -40,7 +40,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v4.1</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v4.2</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -220,18 +220,18 @@
     </div>
 
     <script>
-        // URL v4.1
+        // URL v4.1 (Misma URL, cambio de lógica local)
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbysJ7vFWOZZggwGUr9rtTxhsNXXZ6F4Bvr1CNnaqf4Yfo9oj8VR3vgyQhorP7kw5arDzA/exec";
         
-        // Key v41
-        let session = JSON.parse(localStorage.getItem('atril_v41')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v41')) || {};
+        // Key v42 para asegurar limpieza de caché
+        let session = JSON.parse(localStorage.getItem('atril_v42')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v42')) || {};
         let editingCell = null;
         let isEditing = false;
         let originalDoc = null;
         let currentDirSection = 'TODOS';
         
-        // CORRECCIÓN: Variable para mantener el filtro activo en asistencia
+        // Variable para mantener el filtro activo en asistencia
         let activeSection = 'TODOS';
 
         const DIAS_KEYS = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
@@ -254,7 +254,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v41', JSON.stringify(session));
+            localStorage.setItem('atril_v42', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -308,7 +308,7 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v41', JSON.stringify(session));
+                    localStorage.setItem('atril_v42', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else { alert("ERROR DE DATOS: " + (d.error || 'Desconocido')); restore(); nav('screen-menu'); }
@@ -443,7 +443,7 @@
         }
         function openGradoModal() { if (!session.config.grado || session.config.grado.length === 0) return alert("No hay grados configurados"); document.getElementById('modal-grupo').classList.remove('hidden'); let html = `<button onclick="setGrado('')" class="w-full p-3 bg-red-50 text-red-600 rounded-xl font-bold text-[10px] uppercase">LIMPIAR CELDA</button>`; session.config.grado.forEach(g => { html += `<button onclick="setGrado('${g}')" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-[10px] uppercase">${g}</button>`; }); document.getElementById('lista-grados-modal').innerHTML = html; }
         function setGrado(v) { const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`); if(v === '') { cell.innerText = ""; } else { if(cell.innerText.trim() !== "") { if(!cell.innerText.includes(v)) cell.innerText += " / " + v; } else { cell.innerText = v; } } document.getElementById('modal-grupo').classList.add('hidden'); }
-        async function saveHorario() { loader(true, "GUARDANDO..."); const matriz = []; const numHoras = parseInt(document.getElementById('select-horas').value); for(let h=1; h<=numHoras; h++) { let fila = [h]; for(let d=0; d<5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText); matriz.push(fila); } try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })}); const res = await r.json(); if(res.success) { let newHorario = []; for(let i=0; i<matriz.length; i++) { let row = matriz[i]; newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] }); } session.horario = newHorario; localStorage.setItem('atril_v41', JSON.stringify(session)); alert("HORARIO GUARDADO"); } } catch(e) { alert("Error al guardar"); } loader(false); }
+        async function saveHorario() { loader(true, "GUARDANDO..."); const matriz = []; const numHoras = parseInt(document.getElementById('select-horas').value); for(let h=1; h<=numHoras; h++) { let fila = [h]; for(let d=0; d<5; d++) fila.push(document.getElementById(`cell-${h}-${d}`).innerText); matriz.push(fila); } try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveHorario', sheetId: session.sheetId, datosHorario: matriz })}); const res = await r.json(); if(res.success) { let newHorario = []; for(let i=0; i<matriz.length; i++) { let row = matriz[i]; newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] }); } session.horario = newHorario; localStorage.setItem('atril_v42', JSON.stringify(session)); alert("HORARIO GUARDADO"); } } catch(e) { alert("Error al guardar"); } loader(false); }
 
         // --- ASISTENCIA & REPORTE WA ---
         function prepareProcess() {
@@ -456,16 +456,14 @@
         }
         function initAt(p) { session.process = p; document.getElementById('info-header').innerText = `${p} • ${session.act}`; nav('screen-list'); renderList('TODOS'); }
         
-        // CORRECCIÓN: renderList ahora usa y actualiza activeSection
         function renderList(secc) {
-            activeSection = secc; // Actualizamos el filtro activo global
+            activeSection = secc; // Se actualiza la sección activa
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
             if(!session.master) return;
             let filtered = session.master.filter(m => String(m.proceso) === String(session.process)).sort((a, b) => ORDEN_INST.indexOf(String(a.instrumento).toLowerCase()) - ORDEN_INST.indexOf(String(b.instrumento).toLowerCase()));
             
-            // Filtramos según la sección activa
             if (activeSection !== 'TODOS') { 
                 filtered = filtered.filter(m => { 
                     const miFamilia = Object.keys(SECCIONES).find(key => SECCIONES[key].includes(String(m.instrumento).toLowerCase())); 
@@ -482,11 +480,15 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
         
-        // CORRECCIÓN: mark ahora llama a renderList con activeSection
+        // MODIFICACIÓN TOGGLE PARA v4.2
         function mark(n, st) { 
-            record[n] = st; 
-            localStorage.setItem('atril_rec_v41', JSON.stringify(record)); 
-            renderList(activeSection); // Usamos la variable global
+            if (record[n] === st) {
+                delete record[n]; // Desmarcar si ya estaba seleccionado
+            } else {
+                record[n] = st; // Marcar nuevo estado
+            }
+            localStorage.setItem('atril_rec_v42', JSON.stringify(record)); 
+            renderList(activeSection); 
         }
         
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
@@ -495,7 +497,7 @@
             if(!Object.keys(record).length) return alert("NO HAY MARCACIONES");
             loader(true, "GUARDANDO...");
             const data = Object.entries(record).map(([n, e]) => ({ fecha: session.date, tipo_actividad: session.type, nombre_actividad: session.act, proceso: session.process, musico: n, estado: e }));
-            try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })}); const res = await r.json(); if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v41'); nav('screen-menu'); } } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
+            try { const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })}); const res = await r.json(); if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v42'); nav('screen-menu'); } } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
 
