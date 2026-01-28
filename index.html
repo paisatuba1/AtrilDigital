@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATRIL DIGITAL v3.7</title>
+    <title>ATRIL DIGITAL v3.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -39,7 +39,7 @@
             <img src="https://github.com/pandemiaproducciones/Atril-Digital/blob/main/logo.png?raw=true" class="w-24 mx-auto mb-6">
             <div class="flex items-center justify-center gap-2 mb-1">
                 <h1 class="text-2xl font-black uppercase tracking-tighter">ATRIL DIGITAL</h1>
-                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.7</span>
+                <span class="bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest">v3.8</span>
             </div>
             <p class="text-slate-400 text-[10px] mb-8 font-bold tracking-widest uppercase">GESTIÓN DE BANDAS</p>
             <div class="space-y-3">
@@ -63,12 +63,10 @@
             <span class="font-black text-sm uppercase text-slate-700">ASISTENCIA</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📋</div>
         </button>
-        
         <button onclick="nav('screen-student-menu')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase text-slate-700">GESTIÓN ESTUDIANTES</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">👤</div>
         </button>
-        
         <button onclick="nav('screen-horario')" class="w-full bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
             <span class="font-black text-sm uppercase text-slate-700">HORARIO</span>
             <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-xl">📅</div>
@@ -207,15 +205,12 @@
     </div>
 
     <script>
-        // URL v3.7 (Con Edit Support)
+        // URL v3.8 (Con auto-fix de horario)
         const MOTOR_URL = "https://script.google.com/macros/s/AKfycbysJ7vFWOZZggwGUr9rtTxhsNXXZ6F4Bvr1CNnaqf4Yfo9oj8VR3vgyQhorP7kw5arDzA/exec";
         
-        // Key v37
-        let session = JSON.parse(localStorage.getItem('atril_v37')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
-        let record = JSON.parse(localStorage.getItem('atril_rec_v37')) || {};
+        let session = JSON.parse(localStorage.getItem('atril_v38')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
+        let record = JSON.parse(localStorage.getItem('atril_rec_v38')) || {};
         let editingCell = null;
-        
-        // Variables para Edición
         let isEditing = false;
         let originalDoc = null;
 
@@ -239,7 +234,7 @@
 
         function nav(id) {
             session.current = id;
-            localStorage.setItem('atril_v37', JSON.stringify(session));
+            localStorage.setItem('atril_v38', JSON.stringify(session));
             document.querySelectorAll('body > div').forEach(d => {
                 if(d.id !== 'loader') d.classList.add('hidden');
                 d.classList.remove('flex'); 
@@ -249,7 +244,16 @@
             if(id === 'screen-login') target.classList.add('flex');
             
             if(id === 'screen-activity') document.getElementById('event-date').value = new Date().toISOString().split('T')[0];
-            if(id === 'screen-horario') buildHorarioTable();
+            
+            // AUTO-DETECTAR CANTIDAD DE HORAS (FIX v3.8)
+            if(id === 'screen-horario') {
+                if(session.horario && session.horario.length >= 7) {
+                    document.getElementById('select-horas').value = "7";
+                } else {
+                    document.getElementById('select-horas').value = "6";
+                }
+                buildHorarioTable();
+            }
         }
 
         function loader(v, t) {
@@ -287,7 +291,7 @@
                     session.master = d.integrantes || [];
                     session.config = d.config || {};
                     session.horario = d.horario || [];
-                    localStorage.setItem('atril_v37', JSON.stringify(session));
+                    localStorage.setItem('atril_v38', JSON.stringify(session));
                     restore();
                     nav('screen-menu');
                 } else { alert("ERROR DE DATOS: " + (d.error || 'Desconocido')); restore(); nav('screen-menu'); }
@@ -312,7 +316,6 @@
         }
 
         // --- GESTIÓN ESTUDIANTES & DIRECTORIO ---
-        
         function prepareNewStudent() {
             isEditing = false;
             originalDoc = null;
@@ -320,28 +323,20 @@
             document.getElementById('btn-save-student').innerText = "GUARDAR REGISTRO";
             document.getElementById('btn-save-student').classList.remove('bg-blue-600');
             document.getElementById('btn-save-student').classList.add('bg-slate-900');
-            
-            // Limpiar campos
             document.querySelectorAll('#screen-form-student input').forEach(i => i.value = "");
             document.querySelectorAll('#screen-form-student select').forEach(s => s.selectedIndex = 0);
             document.getElementById('acudiente-box').classList.add('hidden');
-            
             nav('screen-form-student');
         }
 
-        function openDirectory() {
-            nav('screen-directory');
-            filterDirectory();
-        }
+        function openDirectory() { nav('screen-directory'); filterDirectory(); }
 
         function filterDirectory() {
             const q = document.getElementById('search-input').value.toLowerCase();
             const list = document.getElementById('directory-list');
             list.innerHTML = "";
-            
             if(!session.master) return;
             
-            // Filtrar y ordenar
             const filtered = session.master.filter(m => 
                 (m.nombres + " " + m.apellidos + " " + m.instrumento).toLowerCase().includes(q)
             ).sort((a,b) => (a.nombres > b.nombres) ? 1 : -1);
@@ -363,42 +358,27 @@
 
         function loadStudentForEdit(m) {
             isEditing = true;
-            originalDoc = m.documento; // Guardamos el ID original para saber a quién editar
-            
+            originalDoc = m.documento;
             document.getElementById('form-title').innerText = "EDITAR ESTUDIANTE";
             const btn = document.getElementById('btn-save-student');
             btn.innerText = "ACTUALIZAR DATOS";
             btn.classList.remove('bg-slate-900');
-            btn.classList.add('bg-blue-600'); // Color diferente para editar
-
-            // Llenar campos
+            btn.classList.add('bg-blue-600');
+            
             document.getElementById('add-nombres').value = m.nombres;
             document.getElementById('add-apellidos').value = m.apellidos;
             document.getElementById('add-telefono').value = m.telefono;
             document.getElementById('add-eps').value = m.eps;
             document.getElementById('add-documento').value = m.documento;
-            
-            // Fecha: Convertir formato si es necesario (Excel a input date)
-            if(m.fecha_nacimiento) {
-                // Intento simple de formatear si viene como YYYY-MM-DD
-                let dateVal = m.fecha_nacimiento.replace(/'/g, ''); 
-                document.getElementById('add-fecha_nacimiento').value = dateVal.split('T')[0];
-            }
-
+            if(m.fecha_nacimiento) { let dateVal = m.fecha_nacimiento.replace(/'/g, ''); document.getElementById('add-fecha_nacimiento').value = dateVal.split('T')[0]; }
             document.getElementById('add-proceso').value = m.proceso;
             document.getElementById('add-instrumento').value = m.instrumento;
             document.getElementById('add-grado').value = m.grado;
-
-            // Acudiente
             document.getElementById('add-acudiente-nombre').value = m.acudiente;
             document.getElementById('add-acudiente-telefono').value = m.telefono_acud;
             
-            if(m.acudiente || m.telefono_acud) {
-                document.getElementById('acudiente-box').classList.remove('hidden');
-            } else {
-                document.getElementById('acudiente-box').classList.add('hidden');
-            }
-
+            if(m.acudiente || m.telefono_acud) document.getElementById('acudiente-box').classList.remove('hidden');
+            else document.getElementById('acudiente-box').classList.add('hidden');
             nav('screen-form-student');
         }
 
@@ -427,29 +407,18 @@
                 acudiente: document.getElementById('add-acudiente-nombre').value,
                 telefono_acud: document.getElementById('add-acudiente-telefono').value
             };
-            
             if(!d.nombres || !d.documento) return alert("FALTAN DATOS OBLIGATORIOS");
-            
             loader(true, isEditing ? "ACTUALIZANDO..." : "GUARDANDO...");
-            
             const actionType = isEditing ? 'editEstudiante' : 'addEstudiante';
-            const payload = { 
-                action: actionType, 
-                sheetId: session.sheetId, 
-                datos: d,
-                originalDocumento: originalDoc // Solo se usa si es edición
-            };
-
+            const payload = { action: actionType, sheetId: session.sheetId, datos: d, originalDocumento: originalDoc };
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const res = await r.json();
                 if(res.success) { 
                     alert(isEditing ? "DATOS ACTUALIZADOS" : "REGISTRADO CON ÉXITO"); 
-                    await fetchData(); // Recargar datos para ver cambios
+                    await fetchData(); 
                     nav('screen-student-menu'); 
-                } else {
-                    alert("ERROR: " + (res.error || "No se pudo guardar"));
-                }
+                } else { alert("ERROR: " + (res.error || "No se pudo guardar")); }
             } catch(e) { alert("ERROR AL GUARDAR"); }
             loader(false);
         }
@@ -485,16 +454,11 @@
 
         function setGrado(v) {
             const cell = document.getElementById(`cell-${editingCell.h}-${editingCell.d}`);
-            if(v === '') {
-                cell.innerText = "";
-            } else {
-                if(cell.innerText.trim() !== "") {
-                    if(!cell.innerText.includes(v)) {
-                         cell.innerText += " / " + v;
-                    }
-                } else {
-                    cell.innerText = v;
-                }
+            if(v === '') { cell.innerText = ""; } 
+            else { 
+                if(cell.innerText.trim() !== "") { 
+                    if(!cell.innerText.includes(v)) cell.innerText += " / " + v; 
+                } else { cell.innerText = v; }
             }
             document.getElementById('modal-grupo').classList.add('hidden');
         }
@@ -518,7 +482,7 @@
                          newHorario.push({ hora: row[0], lunes: row[1], martes: row[2], miercoles: row[3], jueves: row[4], viernes: row[5] });
                     }
                     session.horario = newHorario;
-                    localStorage.setItem('atril_v37', JSON.stringify(session));
+                    localStorage.setItem('atril_v38', JSON.stringify(session));
                     alert("HORARIO GUARDADO");
                 }
             } catch(e) { alert("Error al guardar"); }
@@ -546,7 +510,6 @@
             document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active-tab'); b.classList.add('text-slate-300'); });
             document.getElementById(`tab-${secc}`).classList.add('active-tab');
             const box = document.getElementById('musicos-box'); box.innerHTML = "";
-            
             if(!session.master) return;
 
             let filtered = session.master.filter(m => String(m.proceso) === String(session.process))
@@ -572,7 +535,7 @@
             document.getElementById('counter').innerText = `${Object.keys(record).length} Marcados`;
         }
 
-        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v37', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
+        function mark(n, st) { record[n] = st; localStorage.setItem('atril_rec_v38', JSON.stringify(record)); renderList(document.querySelector('.active-tab').id.split('-')[1]); }
         function getCol(s) { return { 'PRESENTE': 'bg-slate-900 text-white border-slate-900', 'AUSENTE': 'bg-red-50 text-red-600 border-red-100', 'RETARDO': 'bg-amber-50 text-amber-600 border-amber-100', 'EXCUSA': 'bg-blue-50 text-blue-600 border-blue-100'}[s]; }
 
         async function finalize() {
@@ -582,7 +545,7 @@
             try {
                 const r = await fetch(MOTOR_URL, { method: 'POST', body: JSON.stringify({ action: 'saveAsistencia', sheetId: session.sheetId, asistencia: data })});
                 const res = await r.json();
-                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v37'); nav('screen-menu'); }
+                if(res.success) { alert("¡GUARDADO!"); record = {}; localStorage.removeItem('atril_rec_v38'); nav('screen-menu'); }
             } catch(e) { alert("ERROR DE COMUNICACIÓN"); }
             loader(false);
         }
