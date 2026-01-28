@@ -183,10 +183,9 @@
     </div>
 
     <script>
-        // URL v3.6 (Script con filtro de duplicados y registro actualizado)
-        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbzx2YNHIJZKR2VOuVrZzGlk6a_H1u_6-4T2U4ZdbWO6N4SA4d5BWTWAARaq_lIRhBX21g/exec";
+        // URL v3.6 (Script Filtro Inteligente + Registro 11 columnas)
+        const MOTOR_URL = "https://script.google.com/macros/s/AKfycbz28ZDlRY3WLSUixFVhAePAijF3xR47CaVg-fOnGx1WshCEY9QVVLi64pcY-h17gy2fXw/exec";
         
-        // localStorage key actualizada a v36 para evitar cache viejo
         let session = JSON.parse(localStorage.getItem('atril_v36')) || { user: "", banda: "", sheetId: "", current: "screen-login", master: [], config: {}, horario: [] };
         let record = JSON.parse(localStorage.getItem('atril_rec_v36')) || {};
         let editingCell = null;
@@ -200,7 +199,6 @@
         };
         const ORDEN_INST = [...SECCIONES.Maderas, ...SECCIONES.Bronces, ...SECCIONES.Cuerdas, ...SECCIONES.Percusion];
 
-        // AUTO-SINCRONIZACIÓN
         window.onload = async () => { 
             if(session.user && session.sheetId) {
                 loader(true, "SINCRONIZANDO...");
